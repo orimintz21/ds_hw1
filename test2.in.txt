@@ -1,0 +1,12 @@
+Test: BasicTest. NumCommands: 30. MinInt: -20. MaxInt: 100. With outer errors. Seed: 8892186870335112229.
+#Injecting commands before Init
+AddEmployee 55 26 35 57
+PromoteEmployee 33 83 -11
+GetHighestEarnerInEachCompany 19
+GetHighestEarner 25
+AddCompany 47 21
+RemoveCompany 30
+GetHighestEarnerInEachCompany 37
+GetCompanyInfo 90
+RemoveEmployee 74
+Init

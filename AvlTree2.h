@@ -1,0 +1,897 @@
+//
+// Created by lenovo on 26/04/2022.
+//
+
+#ifndef HW1_AVLTREE2_H
+#define HW1_AVLTREE2_H
+#include "Node.h"
+#include "AvlTreeExceptions.h"
+#include <iostream>
+#include <cmath>
+
+
+using std::cout;
+using std::endl;
+
+template<class T, class Pred>
+class AvlTree
+{
+public:
+    //fields
+
+    //a>b -> a_bigger_b(a,b) = true
+    Pred a_bigger_b;
+    Node<T>* root;
+    Node<T>* max_n;
+    Node<T>* min_n;
+    int size;
+
+    AvlTree() : root(nullptr), max_n(nullptr), min_n(nullptr), size(0) {
+        a_bigger_b = Pred();
+    }
+
+    virtual ~AvlTree() {
+        if(root!=nullptr){
+            delete root;
+        }
+    }
+
+    bool equal(const T& a,const T& b) const
+    {
+        return (! a_bigger_b(a,b) && ! a_bigger_b(b,a));
+    }
+
+    //main functions
+    Node<T>* find(const T& element);
+    void insert(const T& element);
+    void remove(const T& element);
+
+
+    //internal functions
+
+    //LL rotation
+    void LL(Node<T>* rotation_root);
+    //LR rotation
+    void LR(Node<T>* rotation_root);
+    //RL rotation
+    void RL(Node<T>* rotation_root);
+    //RR rotation
+    void RR(Node<T>* rotation_root);
+    void fixBalance(Node<T>* from);
+
+
+    //for tests
+    void printTree(int space) const;
+
+    void removeLeaf(Node<T>* to_remove, Node<T>* p, bool is_right);
+    void removeOneSonLeft(Node<T>* to_remove, Node<T>* p , bool is_right);
+    void removeOneSonRight(Node<T>* to_remove, Node<T>* p , bool is_right);
+    void removeTwoSons(Node<T>* to_remove, Node<T>* p, bool is_right);
+
+    void setMin()
+    {
+        Node<T>* m = root;
+        while(m->left != nullptr)
+            m = m->left;
+        min_n = m;
+    }
+    void setMax()
+    {
+        Node<T>* m = root;
+        while(m->right != nullptr)
+            m = m->right;
+        max_n = m;
+    }
+
+    class iterator;
+    iterator begin();
+    iterator end();
+
+};
+
+
+
+template<class T, class Pred>
+void margeNodeArrey(Node<T>* a_arr[], int a_size, Node<T>* b_arr[], int b_size, 
+                                                Node<T>* ab_arr[], Pred cond);
+
+template<class T>
+Node<T>* fromArreyToNodes(Node<T>*& root, Node<T>* ab_arr[], int start, int end);
+
+template<class T, class Pred>
+void margeTrees(AvlTree<T,Pred>& a, AvlTree<T,Pred>& b, AvlTree<T,Pred>& ab);
+
+template<class T>
+void printTreeAux(Node<T>*a, int space);
+
+template<class T, class Pred>
+void AvlTree<T,Pred>::printTree(int space) const {
+    printTreeAux<T>(root, space);
+}
+
+template<class T>
+void printTreeAux(Node<T>* a, int space)
+{
+    if (a == nullptr)
+        return;
+
+    space += 5;
+    printTreeAux<T>(a->right, space);
+    cout<<endl;
+    for (int i = 5; i < space; i++)
+        cout<<" ";
+    cout<<a->data->id<<"\n";
+    printTreeAux<T>(a->left, space);
+
+}
+
+template<class T, class Pred>
+Node<T>* AvlTree<T, Pred>::find(const T& element)
+{
+    Node<T>* temp = root;
+    while(true)
+    {
+        if(temp == nullptr)
+        {
+            throw not_in_tree();
+        }
+        //temp>element
+        if( a_bigger_b(*(temp->data), element))
+        {
+            temp = temp->left;
+        }
+            //temp<element
+        else if( a_bigger_b(element, *(temp->data)))
+        {
+            temp = temp->right;
+        }
+        else {
+            return temp;
+        }
+    }
+}
+
+
+template<class T, class Pred>
+void AvlTree<T, Pred>::insert(const T& element)
+{
+    Node<T>* temp = root;
+    Node<T>* last = root;
+    if(temp == nullptr)
+    {
+        Node<T>* n_element = new Node<T>(element);
+        root = n_element;
+        min_n = n_element;
+        max_n = n_element;
+        size++;
+        return;
+    }
+    bool is_right = false;
+    while(temp != nullptr)
+    {
+        //temp>element
+        if( a_bigger_b(*(temp->data), element))
+        {
+            last = temp;
+            is_right = false;
+            temp = temp->left;
+        }
+        else if(a_bigger_b(element,*(temp->data)))
+        {
+            last = temp;
+            is_right = true;
+            temp = temp->right;
+        }
+        else{
+            throw already_in_tree();
+        }
+    }
+    Node<T>* n_node = new Node<T>(element);
+    n_node->parent = last;
+
+    if(is_right)
+        last->right = n_node;
+    else
+        last->left = n_node;
+    size++;
+
+    if(max_n == nullptr)
+        max_n = n_node;
+    else if( a_bigger_b(element ,*(max_n->data)))
+        max_n = n_node;
+
+    if(min_n == nullptr)
+        min_n = n_node;
+    else if( a_bigger_b(*(min_n->data), element))
+        min_n = n_node;
+
+    fixBalance(n_node);
+}
+
+
+
+template<class T, class Pred>
+void AvlTree<T,Pred>::remove(const T& element)
+{
+    Node<T>* to_remove = find(element);
+    Node<T>* r_parent = to_remove->parent;
+
+    bool is_right = false;
+    if (r_parent != nullptr)
+    {
+        if(r_parent->right == to_remove)
+        {
+            is_right = true;
+        }
+    }
+
+    //to_remove is a leaf
+    if(to_remove->isALeaf())
+    {
+        removeLeaf(to_remove, r_parent, is_right);
+    }
+
+    //to_remove have only the right son
+    else if(to_remove->left == nullptr)
+    {
+        removeOneSonRight(to_remove, r_parent, is_right);
+    }
+
+    else if(to_remove->right == nullptr)
+    {
+        removeOneSonLeft(to_remove,r_parent,is_right);
+    }
+
+    //to_remove have two sons
+    else
+    {
+        removeTwoSons(to_remove, r_parent, is_right);
+        return;
+    }
+}
+
+template<class T, class Pred>
+void AvlTree<T,Pred>::removeLeaf(Node<T> *to_remove, Node<T> *p, bool is_right) {
+
+    //the only one node in the tree
+    if(p == nullptr)
+    {
+        root = nullptr;
+        max_n = nullptr;
+        min_n = nullptr;
+    }
+    else if(is_right)
+    {
+        p->right = nullptr;
+        //to_remove > p -> to_remove != min_n
+        if(to_remove == max_n)
+            max_n = p;
+    }
+    //to_remove is the left son of p
+    else{
+        p->left = nullptr;
+        //to_remove < p -> to_remove != max_n
+        if(to_remove == min_n)
+            min_n = p;
+    }
+
+    size--;
+    deleteOnlyThisNodePtr(to_remove);
+    fixBalance(p);
+}
+
+//to_remove->right == nullptr && to_remove->left != nullptr
+template<class T, class Pred>
+void AvlTree<T,Pred>::removeOneSonLeft(Node<T> *to_remove, Node<T> *p, bool is_right) {
+    if(p == nullptr)
+    {
+        root = to_remove->left;
+        if(max_n == to_remove)
+            max_n = to_remove->left;
+        //to_remove > to_remove->left --> min_n != to_remove
+    }
+    else if(is_right)
+    {
+        p->right = to_remove->left;
+        if(max_n == to_remove)
+            max_n = to_remove->left;
+        //to_remove > to_remove->left --> min_n != to_remove
+    }
+    else
+    {
+        p->left = to_remove->left;
+        //p>to_remove>to_remove->left --> min_n!= to_remove != max_n
+    }
+    to_remove->left->parent = p;
+    size--;
+    deleteOnlyThisNodePtr(to_remove);
+    fixBalance(p);
+}
+
+//to_remove->left == nullptr && to_remove->right != nullptr
+template<class T, class Pred>
+void AvlTree<T,Pred>::removeOneSonRight(Node<T> *to_remove, Node<T> *p, bool is_right) {
+    if(p == nullptr)
+    {
+        root = to_remove->right;
+        if(min_n == to_remove)
+            min_n = to_remove->right;
+        //to_remove < to_remove->right --> max_n != to_remove
+    }
+    else if(is_right)
+    {
+        p->right = to_remove->right;
+        //p<to_remove < to_remove->right --> min_n != to_remove != max_n
+    }
+    else
+    {
+        p->left = to_remove->right;
+        if(min_n == to_remove)
+            min_n = to_remove->right;
+        //to_remove < to_remove->right < p --> min_n!= to_remove != max_n
+    }
+    to_remove->right->parent = p;
+
+    size--;
+    deleteOnlyThisNodePtr(to_remove);
+    fixBalance(p);
+}
+
+template<class T, class Pred>
+void AvlTree<T,Pred>::removeTwoSons(Node<T> *to_remove, Node<T> *p, bool is_right) {
+    //to_remove->left < to_remove < to_remove->right --> max_n != to_remove != min_n
+
+    bool is_son = true;
+    Node<T>* to_switch = to_remove->right;
+    while(to_switch->left != nullptr)
+    {
+        is_son = false;
+        to_switch = to_switch->left;
+    }
+
+    Node<T>* to_switch_p = to_switch->parent;
+    Node<T>* to_switch_r = to_switch->right;
+    Node<T>* to_remove_r = to_remove->right;
+
+    if(p == nullptr)
+    {
+        to_switch->parent = nullptr;
+        root = to_switch;
+
+    }
+    else
+    {
+        to_switch->parent = p;
+        if(is_right)
+            p->right = to_switch;
+        else
+            p->left = to_switch;
+    }
+
+    if(is_son)
+    {
+        to_remove->parent = to_switch;
+        to_switch->right = to_remove;
+    }
+    else
+    {
+        to_remove->parent = to_switch_p;
+        to_switch_p->left = to_remove;
+        to_switch->right =to_remove_r;
+        to_remove_r->parent = to_switch;
+    }
+    to_switch->left = to_remove->left;
+    to_remove->left->parent =to_switch;
+    to_remove->left = nullptr;
+    to_remove->right = to_switch_r;
+    if(to_switch_r != nullptr)
+        to_switch_r->parent = to_remove;
+
+    //is_son==true -> to_remove is the right son
+    if(to_remove->isALeaf())
+        removeLeaf(to_remove,to_remove->parent,is_son);
+    else
+    {
+        removeOneSonRight(to_remove,to_remove->parent,is_son);
+    }
+}
+
+template<class T, class Pred>
+void AvlTree<T,Pred>::fixBalance(Node<T>* from)
+{
+    Node<T>* temp = from;
+    while (temp!= nullptr)
+    {
+        temp->calcHeight();
+        if(temp->getBalance() > 1)
+        {
+            if(temp->left->getBalance() >= 0)
+            {
+                LL(temp);
+            }
+            else{
+                LR(temp);
+            }
+        } else if(temp->getBalance() < -1)
+        {
+            if(temp->right->getBalance() <= 0)
+            {
+                RR(temp);
+            } else {
+                RL(temp);
+            }
+        }
+        temp = temp->parent;
+    }
+}
+
+template<class T, class Pred>
+void AvlTree<T,Pred>::LL( Node<T>* rotation_root)
+{
+    Node<T>* switch_with = rotation_root->left;
+    //set rotation_root parent
+    if(rotation_root->parent != nullptr) {
+        bool left_son = false;
+        if (rotation_root->parent->left == rotation_root) {
+            left_son = true;
+        }
+        if (left_son) {
+            rotation_root->parent->left = switch_with;
+        } else {
+            rotation_root->parent->right = switch_with;
+        }
+    }
+
+
+    if(rotation_root == root)
+    {
+        root = switch_with;
+    }
+    rotation_root->left = switch_with->right;
+    if(rotation_root->left != nullptr)
+        rotation_root->left->parent = rotation_root;
+    switch_with->right = rotation_root;
+    switch_with->parent = rotation_root->parent;
+    rotation_root->parent = switch_with;
+    rotation_root->calcHeight();
+    switch_with->calcHeight();
+}
+
+template<class T, class Pred>
+void AvlTree<T,Pred>::LR( Node<T>* rotation_root)
+{
+    Node<T>* first_layer = rotation_root->left;
+    Node<T>* second_layer = first_layer->right;
+    Node<T>* parent = rotation_root->parent;
+    if(parent!= nullptr)
+    {
+        bool left_son = false;
+        if (rotation_root->parent->left == rotation_root) {
+            left_son = true;
+        }
+        if(left_son){
+            parent->left = second_layer;
+        }
+        else{
+            parent->right = second_layer;
+        }
+    }
+    if(rotation_root == root)
+    {
+        root = second_layer;
+    }
+    rotation_root->left = second_layer->right;
+    first_layer->right = second_layer->left;
+    second_layer->left = first_layer;
+    second_layer->right = rotation_root;
+    second_layer->parent = rotation_root->parent;
+    rotation_root->parent = &(*second_layer);
+    first_layer->parent = &(*second_layer);
+    rotation_root->calcHeight();
+}
+
+template<class T, class Pred>
+void AvlTree<T,Pred>::RL( Node<T>* rotation_root)
+{
+    Node<T>* first_layer = rotation_root->right;
+    Node<T>* second_layer = first_layer->left;
+    Node<T>* parent = rotation_root->parent;
+    if(parent!= nullptr)
+    {
+        bool left_son = false;
+        if (rotation_root->parent->left == rotation_root) {
+            left_son = true;
+        }
+        if(left_son){
+            parent->left = second_layer;
+        }
+        else{
+            parent->right = second_layer;
+        }
+    }
+    if(rotation_root == root)
+    {
+        root = second_layer;
+    }
+    rotation_root->right = second_layer->left;
+    first_layer->left = second_layer->right;
+    second_layer->right = first_layer;
+    second_layer->left = rotation_root;
+    second_layer->parent = rotation_root->parent;
+    rotation_root->parent = &(*second_layer);
+    first_layer->parent = &(*second_layer);
+    rotation_root->calcHeight();
+
+}
+
+template<class T, class Pred>
+void AvlTree<T,Pred>::RR( Node<T>* rotation_root)
+{
+    Node<T>* switch_with = rotation_root->right;
+    //set rotation_root parent
+    if(rotation_root->parent != nullptr) {
+        bool left_son = false;
+        if (rotation_root->parent->left == rotation_root) {
+            left_son = true;
+        }
+        if (left_son) {
+            rotation_root->parent->left = switch_with;
+        } else {
+            rotation_root->parent->right = switch_with;
+        }
+    }
+    if(rotation_root == root)
+    {
+        root = switch_with;
+    }
+    rotation_root->right = switch_with->left;
+    if(rotation_root->right != nullptr)
+        rotation_root->right->parent = rotation_root;
+    switch_with->left = rotation_root;
+
+    switch_with->parent = rotation_root->parent;
+    rotation_root->parent = switch_with;
+    rotation_root->calcHeight();
+    switch_with->calcHeight();
+}
+
+//
+//template<class T>
+//void AvlTreeToArr(Node<T>* root, Node<T>* arr[], int* loc)
+//{
+//    if(root == nullptr)
+//        return;
+//
+//    Node<T>* left = root->left;
+//    Node<T>* right = root->right;
+//
+//    AvlTreeToArr<T>( left, arr, loc);
+//
+//    root->right = nullptr;
+//    root->left = nullptr;
+//    root->height = 0;
+//    //
+//    arr[*loc] = root;
+//    (*loc)++;
+//    AvlTreeToArr<T>( right ,arr ,loc);
+//}
+//
+//template<class T, class Pred>
+//void margeNodeArrey(Node<T>* a_arr[], int a_size, Node<T>* b_arr[], int b_size, Node<T>* ab_arr[], Pred cond)
+//{
+//    int it_a =0;
+//    int it_b =0;
+//    int it_ab =0;
+//    while(it_a < a_size && it_b < b_size)
+//    {
+//        if(cond(*(a_arr[it_a]->data), *(b_arr[it_b]->data)))
+//        {
+//            Node<T>* b_data =b_arr[it_b];
+//            T t = *b_data->data;
+//            Node<T> n_data = *b_data;
+//            n_data.data = new T(t);
+//            ab_arr[it_ab] = new Node<T> (*n_data);
+//            it_b++;
+//            it_ab++;
+//        }
+//        else{
+//            Node<T>* a_data =a_arr[it_a];
+//            T t = *a_data->data;
+//            Node<T> n_data = *a_data;
+//            n_data.data = new T(t);
+//            ab_arr[it_ab] = new Node<T> (*n_data);
+//            it_a++;
+//            it_ab++;
+//        }
+//    }
+//
+//    while (it_a < a_size)
+//    {
+//        Node<T>* a_data =a_arr[it_a];
+//        T t = *a_data->data;
+//        Node<T> n_data = *a_data;
+//        n_data.data = new T(t);
+//        ab_arr[it_ab] = new Node<T> (*n_data);
+//        it_ab++;
+//        it_a++;
+//    }
+//
+//    while (it_b < b_size)
+//    {
+//        Node<T>* b_data =b_arr[it_b];
+//        T t = *b_data->data;
+//        Node<T> n_data = *b_data;
+//        n_data.data = new T(t);
+//        ab_arr[it_ab] = new Node<T> (*n_data);
+//        it_b++;
+//        it_ab++;
+//    }
+//}
+//
+//template<class T>
+//Node<T>* fromArreyToNodes(Node<T>*& root, Node<T>* ab_arr[], int start, int end)
+//{
+//    if(start > end)
+//        return nullptr;
+//    int mid = (int)((start + end)/2);
+//    root = ab_arr[mid];
+//
+//    root->left = fromArreyToNodes(root->left, ab_arr, start, mid-1);
+//    if(root->left != nullptr)
+//        root->left->parent = root;
+//    root->right = fromArreyToNodes(root->left, ab_arr, mid+1 , end);
+//    if(root->right != nullptr)
+//        root->right->parent = root;
+//
+//    calcNodeHeight(root);
+//    return  root;
+//}
+//
+//template<class T, class Pred>
+//void margeTrees(AvlTree<T,Pred>& a, AvlTree<T,Pred>& b, AvlTree<T,Pred>& ab)
+//{
+//    if(a.size == 0 && b.size == 0)
+//        return;
+//    if(b.size == 0)
+//    {
+//        ab = a;
+//        a.root = nullptr;
+//        a.min_n = nullptr;
+//        a.max_n = nullptr;
+//        return;
+//    }
+//    if(a.size == 0)
+//    {
+//        ab = b;
+//        b.root = nullptr;
+//        b.min_n = nullptr;
+//        b.max_n = nullptr;
+//        return;
+//    }
+//
+//    int it = 0;
+//    Node<T>** a_arr = new Node<T>*[a.size];
+//    Node<T>** b_arr = nullptr;
+//    Node<T>** ab_arr = nullptr;
+//    try{
+//        b_arr = new Node<T>*[b.size];
+//    }catch (std::bad_alloc()) {
+//        delete[] a_arr;
+//        throw std::bad_alloc();
+//    }
+//    try{
+//        ab_arr = new Node<T>*[a.size + b.size];
+//    }catch (std::bad_alloc())
+//    {
+//        delete[] a_arr;
+//        delete[] b_arr;
+//        throw std::bad_alloc();
+//    }
+//
+//    AvlTreeToArr<T>(a.root, a_arr, &it);
+//    it =0;
+//    AvlTreeToArr<T>(b.root, b_arr, &it);
+//
+//    margeNodeArrey<T, Pred>(a_arr, a.size, b_arr, b.size, ab_arr, a.a_bigger_b);
+//    Node<T>* root = nullptr;
+//    root = fromArreyToNodes<T>(root ,ab_arr, 0, a.size + b.size -1);
+//
+//
+//    ab.root = root;
+//    root->parent = nullptr;
+//    ab.a_bigger_b = a.a_bigger_b;
+//    ab.size = a.size+b.size;
+//    Node<T>* min_el =(a.a_bigger_b(*(b.min_n->data),*(a.min_n->data)) ? a.min_n: b.min_n);
+//    Node<T>* max_el = (a.a_bigger_b(*(a.max_n->data),*(b.max_n->data)) ? a.max_n: b.max_n);
+//    ab.max_n = ab.find(*max_el->data);
+//    ab.min_n = ab.find(*min_el->data);
+//    //delete a and b outside the function
+//    a.root = nullptr;
+//    a.min_n = nullptr;
+//    a.max_n = nullptr;
+//
+//    b.root = nullptr;
+//    b.min_n = nullptr;
+//    b.max_n = nullptr;
+//    delete[] a_arr;
+//    delete[] b_arr;
+//    delete[] ab_arr;
+//
+//    return;
+////}
+//template<class T, class Pred>
+//void storeInOrder( Node<T>* root, T arr[], int *ind)
+//{
+//    if( root == nullptr)
+//        return;
+//
+//    storeInOrder<T,Pred>(root->left, arr, ind);
+//
+//    arr[*ind] = *(root->data);
+//    (*ind)++;
+//
+//    storeInOrder<T,Pred>(root->right, arr, ind);
+//}
+//
+//template<class T, class Pred>
+//Node<T>* sortedArrayToRoot(T arr[], int start , int end)
+//{
+//    if(start > end)
+//        return nullptr;
+//    int mid = (int)((start+end)/2);
+//    Node<T> *root = newNode(arr[mid]);
+//
+//    root->left = sortedArrayToRoot<T,Pred>(arr, start, mid-1);
+//    root->right = sortedArrayToRoot<T,Pred>(arr, mid+1 , end);
+//
+//    calcNodeHeight(root);
+//
+//    return  root;
+//}
+//
+//
+//template<class T, class Pred>
+//T* merge(T arr1[], T arr2[], int size1, int size2, T mergedArr[] ,Pred cond)
+//{
+//    int it1 = 0;
+//    int it2 = 0;
+//    int it3 = 0;
+//    while (it1 < size1 && it2 < size2)
+//    {
+//        if(cond(arr2[it2] , arr1[it1]))
+//        {
+//            mergedArr[it3] = arr1[it1];
+//            it1++;
+//        }
+//        else
+//        {
+//            mergedArr[it3] = arr2[it2];
+//            it2++;
+//        }
+//        it3++;
+//    }
+//
+//    while ( it1 < size1)
+//    {
+//        mergedArr[it3] = arr1[it1];
+//        it1++;
+//        it3++;
+//    }
+//
+//    while ( it2 < size2 )
+//    {
+//        mergedArr[it3] = arr2[it2];
+//        it2++;
+//        it3++;
+//    }
+//
+//    return  mergedArr;
+//}
+//
+//template<class T, class Pred>
+//Node<T>* margeNodes(Node<T>* root1, Node<T>* root2, int size1, int size2 , Pred cond)
+//{
+//    T *arr1 = new T[size1];
+//    int iter1 = 0;
+//    storeInOrder<T, Pred>(root1, arr1, &iter1);
+//
+//    T *arr2 = new T[size2];
+//    int iter2 = 0;
+//    storeInOrder<T, Pred>(root2, arr2, &iter2);
+//
+//    T *merged = new T[size1 +size2];
+//    merge(arr1, arr2, size1, size2, merged ,cond);
+//    delete[] arr1;
+//    delete[] arr2;
+//    Node<T>* n_root = sortedArrayToRoot<T,Pred> (merged, 0, size1 + size2 - 1);
+//    delete[] merged;
+//    return n_root;
+//}
+//
+//template<class T, class Pred>
+//void margeTrees(AvlTree<T,Pred>& a, AvlTree<T,Pred>& b, AvlTree<T,Pred>& ab)
+//{
+//    ab.root = margeNodes(a.root, b.root, a.size, b.size, a.a_bigger_b);
+//    ab.setMin();
+//    ab.setMax();
+//    ab.size = b.size + a.size;
+//}
+
+/*---------------------Iterator-------------------*/
+
+template<class T, class Pred>
+class AvlTree<T,Pred>::iterator{
+public:
+    Node<T>* loc;
+
+
+    iterator(Node<T>* node): loc(node){}
+    iterator(const iterator& it) : loc(it.loc){}
+
+    Node<T> operator*()
+    {
+        return *loc;
+    }
+
+    iterator& operator=(const iterator& it)
+    {
+        if(*this == it)
+            return *this;
+        loc = it.loc;
+        return *this;
+    }
+
+    bool operator==(const iterator& it) const
+    {
+        return  loc == it.loc;
+    }
+
+    bool operator!=(const iterator& it) const
+    {
+        return  loc != it.loc;
+    }
+
+
+
+    iterator& operator++(){
+        if(loc == nullptr)
+            return *this;
+        if(loc->right != nullptr)
+        {
+            loc = loc->right;
+            while(loc->left != nullptr){
+                loc = loc->left;
+            }
+        }else{
+            Node<T>* temp = loc;
+            
+            loc = loc->parent;
+            if (loc == nullptr){
+                return *this;
+            }
+            while(loc->parent!= nullptr && loc->right == temp)
+            {
+                temp = loc;
+                loc = loc->parent;
+            }
+            if(loc->right == temp)
+            {
+                loc = nullptr;
+            }
+        }
+        return *this;
+    }
+};
+
+template<class T, class Pred>
+typename AvlTree<T,Pred>::iterator AvlTree<T,Pred>::begin() {
+    return iterator(min_n);
+}
+
+template<class T, class Pred>
+typename  AvlTree<T,Pred>::iterator AvlTree<T,Pred>::end() {
+    return iterator(nullptr);
+}
+
+
+#endif //HW1_AVLTREE2_H

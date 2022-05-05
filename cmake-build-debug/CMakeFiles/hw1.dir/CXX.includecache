@@ -1,0 +1,56 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTests.cpp
+iostream
+-
+Node.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Node.h
+AvlTree2.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTree2.h
+Employee.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Employee.h
+ostream
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/ostream
+AvlTreeExceptions.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTreeExceptions.h
+string
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/string
+
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTree2.h
+Node.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Node.h
+AvlTreeExceptions.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTreeExceptions.h
+iostream
+-
+cmath
+-
+
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTreeExceptions.h
+exception
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/exception
+
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Employee.h
+memory
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/memory
+Node.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Node.h
+AvlTree2.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTree2.h
+Employee.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Employee.h
+ostream
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/ostream
+AvlTreeExceptions.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTreeExceptions.h
+
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Node.h
+memory
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/memory
+

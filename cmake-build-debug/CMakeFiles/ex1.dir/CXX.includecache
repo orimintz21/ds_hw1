@@ -1,0 +1,114 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTree2.h
+Node.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Node.h
+AvlTreeExceptions.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTreeExceptions.h
+iostream
+-
+cmath
+-
+
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTreeExceptions.h
+exception
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/exception
+
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Company.cpp
+Company.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Company.h
+memory
+-
+ex1Exceptions.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/ex1Exceptions.h
+AvlTree2.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTree2.h
+
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Company.h
+memory
+-
+AvlTree2.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTree2.h
+Employee.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Employee.h
+
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Employee.cpp
+Company.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Company.h
+Employee.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Employee.h
+ex1Exceptions.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/ex1Exceptions.h
+
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Employee.h
+memory
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/memory
+Node.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Node.h
+AvlTree2.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTree2.h
+Employee.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Employee.h
+ostream
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/ostream
+AvlTreeExceptions.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTreeExceptions.h
+
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Node.h
+memory
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/memory
+
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/SalaryStat.cpp
+Employee.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Employee.h
+Company.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Company.h
+SalaryStat.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/SalaryStat.h
+AvlTree2.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTree2.h
+exception
+-
+memory
+-
+ex1Exceptions.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/ex1Exceptions.h
+
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/SalaryStat.h
+exception
+-
+AvlTree2.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTree2.h
+library1.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/library1.h
+Company.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Company.h
+Employee.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/Employee.h
+
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/ex1Exceptions.h
+exception
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/exception
+
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/library1.cpp
+library1.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/library1.h
+SalaryStat.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/SalaryStat.h
+AvlTreeExceptions.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/AvlTreeExceptions.h
+ex1Exceptions.h
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/ex1Exceptions.h
+exception
+-
+memory
+-
+
+C:/Users/lenovo/OneDrive/Documents/programing projercts/Data Structures/ex1/library1.h
+
