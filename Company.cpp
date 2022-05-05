@@ -157,112 +157,22 @@ void mergeCompanies(Company& acquirerComp, Company& targetComp, Company& mergedC
     
     mergedComp.id = acquirerComp.id;
     mergedComp.stock_value = (int)((Factor)*(acquirerComp.stock_value + targetComp.stock_value));
+    margeTrees<Employee*,IdComp>(acquirerComp.IdTree, targetComp.IdTree, mergedComp.IdTree);
 
 
-
+    margeTrees<Employee*, SalaryComp>(acquirerComp.SalaryTree, targetComp.SalaryTree, mergedComp.SalaryTree);
 
 }
 
 
-template<class T, class Pred>
-void storeInOrder( Node<T>* root, T arr[], int *ind)
-{
-    if( root == nullptr)
-        return;
+void Company::mergeWith(Company &target, double  Factor) {
+    if(stock_value < 10 * target.stock_value)
+        throw failure();
 
-    storeInOrder<T,Pred>(root->left, arr, ind);
+    stock_value = (int)((Factor)*(target.stock_value + stock_value));
+    IdTree.merge(target.IdTree);
+    target.IdTree.root = nullptr;
+    SalaryTree.merge(target.SalaryTree);
+    target.SalaryTree.root = nullptr;
 
-    arr[*ind] = *(root->data);
-    (*ind)++;
-
-    storeInOrder<T,Pred>(root->right, arr, ind);
 }
-
-template<class T, class Pred>
-Node<T>* sortedArrayToRoot(T arr[], int start , int end)
-{
-    if(start > end)
-        return nullptr;
-    int mid = (int)((start+end)/2);
-    Node<T> *root = newNode(arr[mid]);
-
-    root->left = sortedArrayToRoot<T,Pred>(arr, start, mid-1);
-    root->right = sortedArrayToRoot<T,Pred>(arr, mid+1 , end);
-
-    calcNodeHeight(root);
-
-    return  root;
-}
-
-
-template<class T, class Pred>
-T* merge(T arr1[], T arr2[], int size1, int size2, T mergedArr[] ,Pred cond)
-{
-    int it1 = 0;
-    int it2 = 0;
-    int it3 = 0;
-    while (it1 < size1 && it2 < size2)
-    {
-        if(cond(arr2[it2] , arr1[it1]))
-        {
-            mergedArr[it3] = arr1[it1];
-            it1++;
-        }
-        else
-        {
-            mergedArr[it3] = arr2[it2];
-            it2++;
-        }
-        it3++;
-    }
-
-    while ( it1 < size1)
-    {
-        mergedArr[it3] = arr1[it1];
-        it1++;
-        it3++;
-    }
-
-    while ( it2 < size2 )
-    {
-        mergedArr[it3] = arr2[it2];
-        it2++;
-        it3++;
-    }
-
-    return  mergedArr;
-}
-
-template<class T, class Pred>
-Node<T>* margeNodes(Node<T>* root1, Node<T>* root2, int size1, int size2 , Pred cond)
-{
-    T *arr1 = new T[size1];
-    int iter1 = 0;
-    storeInOrder<T, Pred>(root1, arr1, &iter1);
-
-    T *arr2 = new T[size2];
-    int iter2 = 0;
-    storeInOrder<T, Pred>(root2, arr2, &iter2);
-
-    T *merged = new T[size1 +size2];
-    merge(arr1, arr2, size1, size2, merged ,cond);
-    delete[] arr1;
-    delete[] arr2;
-    Node<T>* n_root = sortedArrayToRoot<T,Pred> (merged, 0, size1 + size2 - 1);
-    delete[] merged;
-    return n_root;
-}
-
-template<class T, class Pred>
-void margeTrees(AvlTree<T,Pred>& a, AvlTree<T,Pred>& b, AvlTree<T,Pred>& ab)
-{
-    ab.root = margeNodes(a.root, b.root, a.size, b.size, a.a_bigger_b);
-    ab.setMin();
-    ab.setMax();
-    ab.size = b.size + a.size;
-}
-
-
-
-
-

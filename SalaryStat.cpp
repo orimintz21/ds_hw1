@@ -3,10 +3,7 @@
 #include "SalaryStat.h"
 #include "AvlTree2.h"
 
-
-
 #include <exception>
-#include <memory>
 #include "ex1Exceptions.h"
 
 SalaryStat::SalaryStat() : company_tree(), employee_tree(),
@@ -42,10 +39,12 @@ void SalaryStat::RemoveEmployee(int EmployeeID) {
     if(EmployeeID <= 0)
         throw invalid_input();
     Node<Employee>* employee = employee_tree.find(Employee(EmployeeID));
+    Node<Company>* employees_comp = employee->data->company;
     if(employee->data->company->data->getSize() == 1)
     {
-        n_e_company_tree.remove(employee->data->company->data);
+        n_e_company_tree.remove(employees_comp->data);
     }
+    employees_comp->data->removeEmployeeFromCompany(employee->data);
     employee_salary_tree.remove(employee->data);
     employee_tree.remove(*employee->data);
 }
@@ -137,40 +136,33 @@ void SalaryStat::AcquireCompany(int AcquirerID, int TargetID, double Factor)
         throw invalid_input();
     }
     Node<Company>* acquirerComp = company_tree.find(AcquirerID);
-    Node<Company>* targetrComp = company_tree.find(TargetID);
+    Node<Company>* targetComp = company_tree.find(TargetID);
 
-    if ((targetrComp->data->stock_value)*10 >  (acquirerComp->data->stock_value))
+    if ((targetComp->data->stock_value)*10 >  (acquirerComp->data->stock_value))
     {
         throw failure();
     }
+    acquirerComp->data->mergeWith(*(targetComp->data), Factor);
 
-    Company mergedCompany(-1);
 
-    mergeCompanies(*(acquirerComp->data), *(targetrComp->data), mergedCompany, Factor);
+
+    if(!targetComp->data->isEmpty())
+    {
+        n_e_company_tree.remove(targetComp->data);
+    }
 
     if(!acquirerComp->data->isEmpty())
     {
-        n_e_company_tree.remove(acquirerComp->data);
+        try{
+            n_e_company_tree.insert(acquirerComp->data);
+        }
+        catch (already_in_tree&){}
     }
 
-    if(!targetrComp->data->isEmpty())
-    {
-        n_e_company_tree.remove(targetrComp->data);
-    }
+    updateCompany(acquirerComp->data->IdTree.root,acquirerComp);
 
+    company_tree.remove(*targetComp->data);
 
-
-    company_tree.remove(*acquirerComp->data);
-    company_tree.remove(*targetrComp->data);
-
-    company_tree.insert(mergedCompany);
-    Node<Company>* node_merged = company_tree.find(mergedCompany);
-    updateCompany((node_merged->data->IdTree.root), node_merged);
-
-    if(!node_merged->data->isEmpty())
-    {
-        n_e_company_tree.insert(node_merged->data);
-    }
 
 }
 
@@ -255,15 +247,24 @@ void SalaryStat::GetHighestEarnerInEachCompany(int NumOfCompanies, int **Employe
     {
         throw std::bad_alloc();
     }
-    AvlTree<Company*, CompanyPtrComp>::iterator it = n_e_company_tree.begin();
-    for(int i = 0 ; i < NumOfCompanies; i++)
-    {   
-
-
-        Node<Company*> loc = *it;
-        company_id_list[i] = (*loc.data)->getHeistEarner()->id;
-        ++it;
+    int i=0;
+    Node<Company*>* loc = n_e_company_tree.min_n;
+    while(i<NumOfCompanies)
+    {
+        company_id_list[i] = (*loc->data)->getHeistEarner()->id;
+        i++;
+        if(loc->right!= nullptr)
+        {
+            loc = loc->right;
+            while(loc->left != nullptr)
+            {
+                loc = loc->left;
+            }
+        }else{
+            loc = loc->parent;
+        }
     }
+
     *Employees = company_id_list;
     return;
 }

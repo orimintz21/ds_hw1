@@ -31,6 +31,7 @@ public:
     }
 
     virtual ~AvlTree() {
+
         if(root!=nullptr){
             delete root;
         }
@@ -68,6 +69,7 @@ public:
     void removeOneSonRight(Node<T>* to_remove, Node<T>* p , bool is_right);
     void removeTwoSons(Node<T>* to_remove, Node<T>* p, bool is_right);
 
+    void merge(AvlTree<T,Pred>& source);
     void setMin()
     {
         Node<T>* m = root;
@@ -92,11 +94,11 @@ public:
 
 
 template<class T, class Pred>
-void margeNodeArrey(Node<T>* a_arr[], int a_size, Node<T>* b_arr[], int b_size, 
+void margeNodeArr(Node<T>* a_arr[], int a_size, Node<T>* b_arr[], int b_size, 
                                                 Node<T>* ab_arr[], Pred cond);
 
 template<class T>
-Node<T>* fromArreyToNodes(Node<T>*& root, Node<T>* ab_arr[], int start, int end);
+Node<T>* fromArrToNodes(Node<T>*& root, Node<T>* ab_arr[], int start, int end);
 
 template<class T, class Pred>
 void margeTrees(AvlTree<T,Pred>& a, AvlTree<T,Pred>& b, AvlTree<T,Pred>& ab);
@@ -577,7 +579,7 @@ void AvlTree<T,Pred>::RR( Node<T>* rotation_root)
 //}
 //
 //template<class T, class Pred>
-//void margeNodeArrey(Node<T>* a_arr[], int a_size, Node<T>* b_arr[], int b_size, Node<T>* ab_arr[], Pred cond)
+//void margeNodeArr(Node<T>* a_arr[], int a_size, Node<T>* b_arr[], int b_size, Node<T>* ab_arr[], Pred cond)
 //{
 //    int it_a =0;
 //    int it_b =0;
@@ -628,24 +630,7 @@ void AvlTree<T,Pred>::RR( Node<T>* rotation_root)
 //    }
 //}
 //
-//template<class T>
-//Node<T>* fromArreyToNodes(Node<T>*& root, Node<T>* ab_arr[], int start, int end)
-//{
-//    if(start > end)
-//        return nullptr;
-//    int mid = (int)((start + end)/2);
-//    root = ab_arr[mid];
-//
-//    root->left = fromArreyToNodes(root->left, ab_arr, start, mid-1);
-//    if(root->left != nullptr)
-//        root->left->parent = root;
-//    root->right = fromArreyToNodes(root->left, ab_arr, mid+1 , end);
-//    if(root->right != nullptr)
-//        root->right->parent = root;
-//
-//    calcNodeHeight(root);
-//    return  root;
-//}
+
 //
 //template<class T, class Pred>
 //void margeTrees(AvlTree<T,Pred>& a, AvlTree<T,Pred>& b, AvlTree<T,Pred>& ab)
@@ -692,9 +677,9 @@ void AvlTree<T,Pred>::RR( Node<T>* rotation_root)
 //    it =0;
 //    AvlTreeToArr<T>(b.root, b_arr, &it);
 //
-//    margeNodeArrey<T, Pred>(a_arr, a.size, b_arr, b.size, ab_arr, a.a_bigger_b);
+//    margeNodeArr<T, Pred>(a_arr, a.size, b_arr, b.size, ab_arr, a.a_bigger_b);
 //    Node<T>* root = nullptr;
-//    root = fromArreyToNodes<T>(root ,ab_arr, 0, a.size + b.size -1);
+//    root = fromArrToNodes<T>(root ,ab_arr, 0, a.size + b.size -1);
 //
 //
 //    ab.root = root;
@@ -718,104 +703,104 @@ void AvlTree<T,Pred>::RR( Node<T>* rotation_root)
 //    delete[] ab_arr;
 //
 //    return;
-////}
-//template<class T, class Pred>
-//void storeInOrder( Node<T>* root, T arr[], int *ind)
-//{
-//    if( root == nullptr)
-//        return;
-//
-//    storeInOrder<T,Pred>(root->left, arr, ind);
-//
-//    arr[*ind] = *(root->data);
-//    (*ind)++;
-//
-//    storeInOrder<T,Pred>(root->right, arr, ind);
 //}
-//
-//template<class T, class Pred>
-//Node<T>* sortedArrayToRoot(T arr[], int start , int end)
-//{
-//    if(start > end)
-//        return nullptr;
-//    int mid = (int)((start+end)/2);
-//    Node<T> *root = newNode(arr[mid]);
-//
-//    root->left = sortedArrayToRoot<T,Pred>(arr, start, mid-1);
-//    root->right = sortedArrayToRoot<T,Pred>(arr, mid+1 , end);
-//
-//    calcNodeHeight(root);
-//
-//    return  root;
-//}
-//
-//
-//template<class T, class Pred>
-//T* merge(T arr1[], T arr2[], int size1, int size2, T mergedArr[] ,Pred cond)
-//{
-//    int it1 = 0;
-//    int it2 = 0;
-//    int it3 = 0;
-//    while (it1 < size1 && it2 < size2)
-//    {
-//        if(cond(arr2[it2] , arr1[it1]))
-//        {
-//            mergedArr[it3] = arr1[it1];
-//            it1++;
-//        }
-//        else
-//        {
-//            mergedArr[it3] = arr2[it2];
-//            it2++;
-//        }
-//        it3++;
-//    }
-//
-//    while ( it1 < size1)
-//    {
-//        mergedArr[it3] = arr1[it1];
-//        it1++;
-//        it3++;
-//    }
-//
-//    while ( it2 < size2 )
-//    {
-//        mergedArr[it3] = arr2[it2];
-//        it2++;
-//        it3++;
-//    }
-//
-//    return  mergedArr;
-//}
-//
-//template<class T, class Pred>
-//Node<T>* margeNodes(Node<T>* root1, Node<T>* root2, int size1, int size2 , Pred cond)
-//{
-//    T *arr1 = new T[size1];
-//    int iter1 = 0;
-//    storeInOrder<T, Pred>(root1, arr1, &iter1);
-//
-//    T *arr2 = new T[size2];
-//    int iter2 = 0;
-//    storeInOrder<T, Pred>(root2, arr2, &iter2);
-//
-//    T *merged = new T[size1 +size2];
-//    merge(arr1, arr2, size1, size2, merged ,cond);
-//    delete[] arr1;
-//    delete[] arr2;
-//    Node<T>* n_root = sortedArrayToRoot<T,Pred> (merged, 0, size1 + size2 - 1);
-//    delete[] merged;
-//    return n_root;
-//}
-//
-//template<class T, class Pred>
-//void margeTrees(AvlTree<T,Pred>& a, AvlTree<T,Pred>& b, AvlTree<T,Pred>& ab)
-//{
-//    ab.root = margeNodes(a.root, b.root, a.size, b.size, a.a_bigger_b);
-//    ab.setMin();
-//    ab.setMax();
-//    ab.size = b.size + a.size;
-//}
+template<class T, class Pred>
+void storeInOrder( Node<T>* root, T arr[], int *ind)
+{
+    if( root == nullptr)
+        return;
+
+    storeInOrder<T,Pred>(root->left, arr, ind);
+
+    arr[*ind] = *(root->data);
+    (*ind)++;
+
+    storeInOrder<T,Pred>(root->right, arr, ind);
+}
+
+template<class T, class Pred>
+Node<T>* sortedArrayToRoot(T arr[], int start , int end)
+{
+    if(start > end)
+        return nullptr;
+    int mid = (int)((start+end)/2);
+    Node<T> *root = newNode(arr[mid]);
+
+    root->left = sortedArrayToRoot<T,Pred>(arr, start, mid-1);
+    root->right = sortedArrayToRoot<T,Pred>(arr, mid+1 , end);
+
+    calcNodeHeight(root);
+
+    return  root;
+}
+
+
+template<class T, class Pred>
+T* merge(T arr1[], T arr2[], int size1, int size2, T mergedArr[] ,Pred cond)
+{
+    int it1 = 0;
+    int it2 = 0;
+    int it3 = 0;
+    while (it1 < size1 && it2 < size2)
+    {
+        if(cond(arr2[it2] , arr1[it1]))
+        {
+            mergedArr[it3] = arr1[it1];
+            it1++;
+        }
+        else
+        {
+            mergedArr[it3] = arr2[it2];
+            it2++;
+        }
+        it3++;
+    }
+
+    while ( it1 < size1)
+    {
+        mergedArr[it3] = arr1[it1];
+        it1++;
+        it3++;
+    }
+
+    while ( it2 < size2 )
+    {
+        mergedArr[it3] = arr2[it2];
+        it2++;
+        it3++;
+    }
+
+    return  mergedArr;
+}
+
+template<class T, class Pred>
+Node<T>* margeNodes(Node<T>* root1, Node<T>* root2, int size1, int size2 , Pred cond)
+{
+    T *arr1 = new T[size1];
+    int iter1 = 0;
+    storeInOrder<T, Pred>(root1, arr1, &iter1);
+
+    T *arr2 = new T[size2];
+    int iter2 = 0;
+    storeInOrder<T, Pred>(root2, arr2, &iter2);
+
+    T *merged = new T[size1 +size2];
+    merge(arr1, arr2, size1, size2, merged ,cond);
+    delete[] arr1;
+    delete[] arr2;
+    Node<T>* n_root = sortedArrayToRoot<T,Pred> (merged, 0, size1 + size2 - 1);
+    delete[] merged;
+    return n_root;
+}
+
+template<class T, class Pred>
+void margeTrees(AvlTree<T,Pred>& a, AvlTree<T,Pred>& b, AvlTree<T,Pred>& ab)
+{
+    ab.root = margeNodes(a.root, b.root, a.size, b.size, a.a_bigger_b);
+    ab.setMin();
+    ab.setMax();
+    ab.size = b.size + a.size;
+}
 
 /*---------------------Iterator-------------------*/
 
@@ -827,6 +812,10 @@ public:
 
     iterator(Node<T>* node): loc(node){}
     iterator(const iterator& it) : loc(it.loc){}
+
+    virtual ~iterator() {
+        loc = nullptr;
+    }
 
     Node<T> operator*()
     {
@@ -894,4 +883,101 @@ typename  AvlTree<T,Pred>::iterator AvlTree<T,Pred>::end() {
 }
 
 
+template<class T>
+Node<T>* fromArrToNodes(Node<T>*& root, Node<T>* ab_arr[], int start, int end)
+{
+    if(start > end)
+        return nullptr;
+    int mid = (int)((start + end)/2);
+    root = ab_arr[mid];
+
+    root->right = fromArrToNodes(root->left, ab_arr, mid+1 , end);
+    if(root->right != nullptr)
+        root->right->parent = root;
+    root->left = fromArrToNodes(root->left, ab_arr, start, mid-1);
+    if(root->left != nullptr)
+        root->left->parent = root;
+
+
+    calcNodeHeight(root);
+    return  root;
+}
+
+template<class T , class  Pred>
+void AvlTree<T,Pred>::merge(AvlTree<T, Pred> &source) {
+    Node<T>** arr1 = new Node<T>*[size];
+    Node<T>** arr2 = new Node<T>*[source.size];
+    int i =0 , j=0;
+    AvlTreeToArr<T>(this->root, arr1, &i);
+    AvlTreeToArr<T>(source.root, arr2, &j);
+    Node<T>** merged_arr = new Node<T>*[size + source.size];
+    margeNodeArr(arr1, size, arr2, source.size, merged_arr, a_bigger_b);
+    fromArrToNodes<T>(root , merged_arr , 0 , size + source.size - 1);
+
+    min_n =(a_bigger_b(*(source.min_n->data),*(min_n->data)) ? min_n: source.min_n);
+    max_n = (a_bigger_b(*(max_n->data),*(source.max_n->data)) ? max_n: source.max_n);
+    size += source.size;
+
+}
+
+
+
+template<class T, class Pred>
+void margeNodeArr(Node<T>* a_arr[], int a_size, Node<T>* b_arr[], int b_size, Node<T>* ab_arr[], Pred cond)
+{
+    int it_a =0;
+    int it_b =0;
+    int it_ab =0;
+    while(it_a < a_size && it_b < b_size)
+    {
+        if(cond(*(a_arr[it_a]->data), *(b_arr[it_b]->data)))
+        {
+            ab_arr[it_ab] = b_arr[it_b];
+            it_b++;
+            it_ab++;
+        }
+        else{
+            ab_arr[it_ab] =a_arr[it_a];
+            it_a++;
+            it_ab++;
+        }
+    }
+
+    while (it_a < a_size)
+    {
+        ab_arr[it_ab] = a_arr[it_a];
+        it_ab++;
+        it_a++;
+    }
+
+    while (it_b < b_size)
+    {
+        ab_arr[it_ab] =b_arr[it_b];
+        it_b++;
+        it_ab++;
+    }
+}
+
+
+
+template<class T>
+void AvlTreeToArr(Node<T>* root, Node<T>* arr[], int* loc)
+{
+    if(root == nullptr)
+        return;
+
+    Node<T>* left = root->left;
+    Node<T>* right = root->right;
+
+    AvlTreeToArr<T>( left, arr, loc);
+
+    root->right = nullptr;
+    root->left = nullptr;
+    root->parent = nullptr;
+    root->height = 0;
+
+    arr[*loc] = root;
+    (*loc)++;
+    AvlTreeToArr<T>( right ,arr ,loc);
+}
 #endif //HW1_AVLTREE2_H

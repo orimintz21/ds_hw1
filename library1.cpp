@@ -85,7 +85,7 @@ StatusType RemoveCompany(void *DS, int CompanyID)
     }
     try
     {
-        ((SalaryStat *)DS)->RemoveEmployee(CompanyID);
+        ((SalaryStat *)DS)->RemoveCompany(CompanyID);
     }
     catch (const std::bad_alloc &e)
     {
@@ -417,6 +417,7 @@ StatusType GetNumEmployeesMatching(void *DS, int CompanyID, int MinEmployeeID, i
 void Quit(void **DS)
 {
     void** temp = DS;
-    delete static_cast<SalaryStat*>(*temp);
-    DS = NULL;
+    SalaryStat* n_temp= static_cast<SalaryStat*>(*temp);
+    delete n_temp;
+    *DS = NULL;
 }

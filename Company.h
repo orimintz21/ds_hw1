@@ -94,7 +94,7 @@ public:
 
     void updateEmployeeAfterChangedSalary(Employee* employee);
 
-
+    void mergeWith(Company& target, double Factor);
 };
 
 void updateCompany(Node<Employee*>* emp, Node<Company>* comp);
