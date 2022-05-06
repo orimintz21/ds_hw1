@@ -431,31 +431,73 @@ void AvlTree<T,Pred>::fixBalance(Node<T>* from)
 template<class T, class Pred>
 void AvlTree<T,Pred>::LL( Node<T>* rotation_root)
 {
+    Node<T>* rotrootParent = rotation_root->parent;
     Node<T>* switch_with = rotation_root->left;
-    //set rotation_root parent
-    if(rotation_root->parent != nullptr) {
-        bool left_son = false;
-        if (rotation_root->parent->left == rotation_root) {
-            left_son = true;
-        }
-        if (left_son) {
-            rotation_root->parent->left = switch_with;
-        } else {
-            rotation_root->parent->right = switch_with;
-        }
-    }
+    Node<T>* T2 = switch_with->right;
 
+    //make rotroot.left -> switch.right
+    rotation_root->left = T2;
+    if(T2!= nullptr)
+        T2->parent = rotation_root;
 
+    // make switch.right -> rotroot
+    switch_with->right = rotation_root;
+    rotation_root->parent = switch_with;
+
+    switch_with->parent = rotrootParent;
+
+    // fix rotrootParent child
     if(rotation_root == root)
     {
         root = switch_with;
     }
-    rotation_root->left = switch_with->right;
-    if(rotation_root->left != nullptr)
-        rotation_root->left->parent = rotation_root;
-    switch_with->right = rotation_root;
-    switch_with->parent = rotation_root->parent;
+    else
+    {
+        if (rotrootParent->left == rotation_root) {
+            rotrootParent->left = switch_with;
+        }
+        else {
+            rotrootParent->right =  switch_with;
+        }
+    }
+
+    rotation_root->calcHeight();
+    switch_with->calcHeight();
+}
+
+template<class T, class Pred>
+void AvlTree<T,Pred>::RR( Node<T>* rotation_root)
+{
+    Node<T>* rotrootParent = rotation_root->parent;
+    Node<T>* switch_with = rotation_root->right;
+    Node<T>* T2 = switch_with->left;
+
+    //make rotroot.right -> switch.left
+    rotation_root->right = T2;
+    if(T2!= nullptr)
+        T2->parent = rotation_root;
+
+    // make switch.left -> rotroot
+    switch_with->left = rotation_root;
     rotation_root->parent = switch_with;
+
+    switch_with->parent = rotrootParent;
+
+    // fix rotrootParent child
+    if(rotation_root == root)
+    {
+        root = switch_with;
+    }
+    else
+    {
+        if (rotrootParent->left == rotation_root) {
+            rotrootParent->left = switch_with;
+        }
+        else {
+            rotrootParent->right =  switch_with;
+        }
+    }
+
     rotation_root->calcHeight();
     switch_with->calcHeight();
 }
@@ -463,99 +505,104 @@ void AvlTree<T,Pred>::LL( Node<T>* rotation_root)
 template<class T, class Pred>
 void AvlTree<T,Pred>::LR( Node<T>* rotation_root)
 {
-    Node<T>* first_layer = rotation_root->left;
-    Node<T>* second_layer = first_layer->right;
-    Node<T>* parent = rotation_root->parent;
-    if(parent!= nullptr)
-    {
-        bool left_son = false;
-        if (rotation_root->parent->left == rotation_root) {
-            left_son = true;
-        }
-        if(left_son){
-            parent->left = second_layer;
-        }
-        else{
-            parent->right = second_layer;
-        }
-    }
-    if(rotation_root == root)
-    {
-        root = second_layer;
-    }
-    rotation_root->left = second_layer->right;
-    first_layer->right = second_layer->left;
-    second_layer->left = first_layer;
-    second_layer->right = rotation_root;
-    second_layer->parent = rotation_root->parent;
-    rotation_root->parent = &(*second_layer);
-    first_layer->parent = &(*second_layer);
-    rotation_root->calcHeight();
+    RR(rotation_root->left);
+    LL(rotation_root);
+
+//    Node<T>* first_layer = rotation_root->left;
+//    Node<T>* second_layer = first_layer->right;
+//    Node<T>* parent = rotation_root->parent;
+//    if(parent!= nullptr)
+//    {
+//        bool left_son = false;
+//        if (rotation_root->parent->left == rotation_root) {
+//            left_son = true;
+//        }
+//        if(left_son){
+//            parent->left = second_layer;
+//        }
+//        else{
+//            parent->right = second_layer;
+//        }
+//    }
+//    if(rotation_root == root)
+//    {
+//        root = second_layer;
+//    }
+//    rotation_root->left = second_layer->right;
+//    first_layer->right = second_layer->left;
+//    second_layer->left = first_layer;
+//    second_layer->right = rotation_root;
+//    second_layer->parent = rotation_root->parent;
+//    rotation_root->parent = &(*second_layer);
+//    first_layer->parent = &(*second_layer);
+//    rotation_root->calcHeight();
 }
 
 template<class T, class Pred>
 void AvlTree<T,Pred>::RL( Node<T>* rotation_root)
 {
-    Node<T>* first_layer = rotation_root->right;
-    Node<T>* second_layer = first_layer->left;
-    Node<T>* parent = rotation_root->parent;
-    if(parent!= nullptr)
-    {
-        bool left_son = false;
-        if (rotation_root->parent->left == rotation_root) {
-            left_son = true;
-        }
-        if(left_son){
-            parent->left = second_layer;
-        }
-        else{
-            parent->right = second_layer;
-        }
-    }
-    if(rotation_root == root)
-    {
-        root = second_layer;
-    }
-    rotation_root->right = second_layer->left;
-    first_layer->left = second_layer->right;
-    second_layer->right = first_layer;
-    second_layer->left = rotation_root;
-    second_layer->parent = rotation_root->parent;
-    rotation_root->parent = &(*second_layer);
-    first_layer->parent = &(*second_layer);
-    rotation_root->calcHeight();
+    LL(rotation_root->right);
+    RR(rotation_root);
+//    Node<T>* first_layer = rotation_root->right;
+//    Node<T>* second_layer = first_layer->left;
+//    Node<T>* parent = rotation_root->parent;
+//    if(parent!= nullptr)
+//    {
+//        bool left_son = false;
+//        if (rotation_root->parent->left == rotation_root) {
+//            left_son = true;
+//        }
+//        if(left_son){
+//            parent->left = second_layer;
+//        }
+//        else{
+//            parent->right = second_layer;
+//        }
+//    }
+//    if(rotation_root == root)
+//    {
+//        root = second_layer;
+//    }
+//    rotation_root->right = second_layer->left;
+//    first_layer->left = second_layer->right;
+//    second_layer->right = first_layer;
+//    second_layer->left = rotation_root;
+//    second_layer->parent = rotation_root->parent;
+//    rotation_root->parent = &(*second_layer);
+//    first_layer->parent = &(*second_layer);
+//    rotation_root->calcHeight();
 
 }
 
-template<class T, class Pred>
-void AvlTree<T,Pred>::RR( Node<T>* rotation_root)
-{
-    Node<T>* switch_with = rotation_root->right;
-    //set rotation_root parent
-    if(rotation_root->parent != nullptr) {
-        bool left_son = false;
-        if (rotation_root->parent->left == rotation_root) {
-            left_son = true;
-        }
-        if (left_son) {
-            rotation_root->parent->left = switch_with;
-        } else {
-            rotation_root->parent->right = switch_with;
-        }
-    }
-    if(rotation_root == root)
-    {
-        root = switch_with;
-    }
-    rotation_root->right = switch_with->left;
-    if(rotation_root->right != nullptr)
-        rotation_root->right->parent = rotation_root;
-    switch_with->left = rotation_root;
-    switch_with->parent = rotation_root->parent;
-    rotation_root->parent = switch_with;
-    rotation_root->calcHeight();
-    switch_with->calcHeight();
-}
+//template<class T, class Pred>
+//void AvlTree<T,Pred>::RR( Node<T>* rotation_root)
+//{
+//    Node<T>* switch_with = rotation_root->right;
+//    //set rotation_root parent
+//    if(rotation_root->parent != nullptr) {
+//        bool left_son = false;
+//        if (rotation_root->parent->left == rotation_root) {
+//            left_son = true;
+//        }
+//        if (left_son) {
+//            rotation_root->parent->left = switch_with;
+//        } else {
+//            rotation_root->parent->right = switch_with;
+//        }
+//    }
+//    if(rotation_root == root)
+//    {
+//        root = switch_with;
+//    }
+//    rotation_root->right = switch_with->left;
+//    if(rotation_root->right != nullptr)
+//        rotation_root->right->parent = rotation_root;
+//    switch_with->left = rotation_root;
+//    switch_with->parent = rotation_root->parent;
+//    rotation_root->parent = switch_with;
+//    rotation_root->calcHeight();
+//    switch_with->calcHeight();
+//}
 
 template<class T, class Pred>
 void storeInOrder( Node<T>* root, T arr[], int *ind)

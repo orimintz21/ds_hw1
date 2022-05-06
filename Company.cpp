@@ -85,7 +85,7 @@ void Company::getAllEmployeesBySalaryInCompanyAux(int* employee_arr,int* n_size,
    if(loc == nullptr)
        return;
    getAllEmployeesBySalaryInCompanyAux(employee_arr,n_size,loc->left);
-   employee_arr[*n_size] = (*((*loc).data))->id;
+   employee_arr[*n_size] = (*(loc->data))->id;
    (*n_size)++;
    getAllEmployeesBySalaryInCompanyAux(employee_arr,n_size,loc->right);
 }
@@ -100,27 +100,23 @@ void Company::getNumEmployeesMatchingInCompany(int min_employee, int max_employe
     *total_num_of_employees = 0;
     *num_of_matching_employees = 0;
 
-    countInRange(min_employee, max_employee, EmployeesMatchingInCompanyCond(min_salary,min_grade), total_num_of_employees
-                                ,  num_of_matching_employees, IdTree.root);
+    countInRange(min_employee, max_employee, EmployeesMatchingInCompanyCond(min_salary,min_grade),
+                 total_num_of_employees,  num_of_matching_employees, IdTree.root);
 }
 
 
-void Company::countInRange(int min_employee, int max_employee, EmployeesMatchingInCompanyCond cond, int* total_num_of_employees, int* num_of_matching_employees, Node<Employee*>* loc)
+void Company::countInRange(int min_employee, int max_employee, EmployeesMatchingInCompanyCond cond,
+                           int* total_num_of_employees, int* num_of_matching_employees, Node<Employee*>* loc)
 {
     if(loc == nullptr)
         return;
 
     if((*(loc->data))->id > min_employee)
     {
-        countInRange(min_employee,max_employee, cond, total_num_of_employees, num_of_matching_employees, loc->right);
-    }
-
-    if((*(loc->data))->id < max_employee)
-    {
         countInRange(min_employee,max_employee, cond, total_num_of_employees, num_of_matching_employees, loc->left);
     }
 
-    if((*(loc->data))->id < max_employee && (*(loc->data))->id > min_employee)
+    if((*(loc->data))->id <= max_employee && (*(loc->data))->id >= min_employee)
     {
         (*total_num_of_employees)++;
         if(cond(*(loc->data)))
@@ -128,7 +124,12 @@ void Company::countInRange(int min_employee, int max_employee, EmployeesMatching
             (*num_of_matching_employees)++;
         }
     }
-} 
+
+    if((*(loc->data))->id < max_employee)
+    {
+        countInRange(min_employee,max_employee, cond, total_num_of_employees, num_of_matching_employees, loc->right);
+    }
+}
 
 
 void Company::updateEmployeeAfterChangedSalary(Employee *employee) {

@@ -91,12 +91,11 @@ void SalaryStat::PromoteEmployee(int EmployeeID, int SalaryIncrease, int BumpGra
     if(SalaryIncrease<= 0 || EmployeeID<= 0)
         throw invalid_input();
     Node<Employee>* temp_emp = employee_tree.find(EmployeeID);
-    temp_emp->data->promote(SalaryIncrease,  BumpGrade);
-    employee_salary_tree.remove(temp_emp->data);
-    employee_salary_tree.insert(temp_emp->data);
     Node<Company>* company = temp_emp->data->company;
-    Employee e(temp_emp->data->id,temp_emp->data->salary,temp_emp->data->grade, temp_emp->data->company);
-    company->data->SalaryTree.remove(&e);
+    employee_salary_tree.remove(temp_emp->data);
+    company->data->SalaryTree.remove(temp_emp->data);
+    temp_emp->data->promote(SalaryIncrease,  BumpGrade);
+    employee_salary_tree.insert(temp_emp->data);
     company->data->SalaryTree.insert(temp_emp->data);
 //    company->data->updateEmployeeAfterChangedSalary(temp_emp->data);
 
@@ -220,39 +219,21 @@ int* SalaryStat::GetAllEmployeesBySalaryInTheSystem(int *NumOfEmployees) {
     {
         throw std::bad_alloc();
     }
-    Node<Employee*>* loc = employee_salary_tree.min_n;
-    Node<Employee*>* last = loc;
+    Node<Employee*>* loc = employee_salary_tree.root;
     int i=0;
-    while(i<employee_salary_tree.size)
-    {
-        employee_arr[i] = (*loc->data)->id;
-        i++;
-        if(loc->right != nullptr)
-        {
-            last = loc;
-            loc = loc->right;
-            while(loc->left != nullptr)
-            {
-                last = loc;
-                loc = loc->left;
-            }
-        }else{
-            if(loc->parent == nullptr)
-                break;
-            while(loc->parent != nullptr)
-            {
-                last = loc;
-                loc = loc->parent;
-                if(loc->left == last)
-                {
-                    continue;
-                }
-            }
-        }
-
-    }
-
+    GetAllEmployeesBySalaryInTheSystemAux(loc, employee_arr, i);
     return  employee_arr;
+}
+
+void SalaryStat::GetAllEmployeesBySalaryInTheSystemAux(Node<Employee *> *loc, int *employee_arr, int &i) {
+    if(loc == nullptr)
+    {
+        return;
+    }
+    GetAllEmployeesBySalaryInTheSystemAux(loc->left, employee_arr, i);
+    employee_arr[i] = (*loc->data)->id;
+    i++;
+    GetAllEmployeesBySalaryInTheSystemAux(loc->right, employee_arr, i);
 }
 
 void SalaryStat::GetHighestEarnerInEachCompany(int NumOfCompanies, int **Employees)
@@ -272,42 +253,60 @@ void SalaryStat::GetHighestEarnerInEachCompany(int NumOfCompanies, int **Employe
         throw std::bad_alloc();
     }
     int i=0;
-    Node<Company*>* loc = n_e_company_tree.min_n;
-    Node<Company*>* last = loc;
-    while(i<NumOfCompanies)
-    {
-        company_id_list[i] = (*loc->data)->getHeistEarner()->id;
-        i++;
-        if(loc->right != nullptr)
-        {
-            last = loc;
-            loc = loc->right;
-            while(loc->left != nullptr)
-            {
-                last = loc;
-                loc = loc->left;
-            }
-        }else{
-            if(loc->parent == nullptr)
-                break;
-            while(loc->parent != nullptr)
-            {
-                last = loc;
-                loc = loc->parent;
-                if(loc->left == last)
-                {
-                    continue;
-                }
-            }
-        }
-
-    }
+    GetHighestEarnerInEachCompanyAux(n_e_company_tree.root, company_id_list, i, NumOfCompanies);
+//    Node<Company*>* last = loc;
+//    while(i<NumOfCompanies)
+//    {
+//        company_id_list[i] = (*loc->data)->getHeistEarner()->id;
+//        i++;
+//        if(loc->right != nullptr)
+//        {
+//            last = loc;
+//            loc = loc->right;
+//            while(loc->left != nullptr)
+//            {
+//                last = loc;
+//                loc = loc->left;
+//            }
+//        }else{
+//            if(loc->parent == nullptr)
+//                break;
+//            while(loc->parent != nullptr)
+//            {
+//                last = loc;
+//                loc = loc->parent;
+//                if(loc->left == last)
+//                {
+//                    continue;
+//                }
+//            }
+//        }
+//
+//    }
 
     *Employees = company_id_list;
-    return;
 }
 
-void SalaryStat::GetNumEmployeesMatching(int CompanyID, int MinEmployeeID, int MaxEmployeeId, int MinSalary, int MinGrade, int *TotalNumOfEmployees, int *NumOfEmployees)
+void SalaryStat::GetHighestEarnerInEachCompanyAux(Node<Company *> *loc, int *arr, int &i, int NumOfCompanies) {
+    if(i>=NumOfCompanies || loc == nullptr)
+    {
+        return;
+    }
+
+    GetHighestEarnerInEachCompanyAux(loc->left, arr, i , NumOfCompanies);
+    if(i < NumOfCompanies)
+    {
+        arr[i] = (*loc->data)->getHeistEarner()->id;
+        i++;
+    }
+    if(i <  NumOfCompanies)
+    {
+        GetHighestEarnerInEachCompanyAux(loc->right, arr, i , NumOfCompanies);
+    }
+}
+
+void SalaryStat::GetNumEmployeesMatching(int CompanyID, int MinEmployeeID, int MaxEmployeeId, int MinSalary,
+                                         int MinGrade, int *TotalNumOfEmployees, int *NumOfEmployees)
 {
     if(TotalNumOfEmployees == NULL || CompanyID == 0 || NumOfEmployees == NULL 
                 || MinEmployeeID < 0 || MaxEmployeeId < 0 || MinSalary < 0 
@@ -347,27 +346,28 @@ void SalaryStat::GetNumEmployeesMatchingInTheSystem(int MinEmployeeID, int MaxEm
 
 
 
-void SalaryStat::countInRange(int min_employee, int max_employee, EmployeesMatchingInSystemCond cond, int* total_num_of_employees, int* num_of_matching_employees, Node<Employee>* loc)
+void SalaryStat::countInRange(int min_employee, int max_employee, EmployeesMatchingInSystemCond cond,
+                              int* total_num_of_employees, int* num_of_matching_employees, Node<Employee>* loc)
 {
     if(loc == nullptr)
         return;
 
     if(loc->data->id > min_employee)
     {
-        countInRange(min_employee,max_employee, cond, total_num_of_employees, num_of_matching_employees, loc->right);
-    }
-
-    if(loc->data->id < max_employee)
-    {
         countInRange(min_employee,max_employee, cond, total_num_of_employees, num_of_matching_employees, loc->left);
     }
 
-    if(loc->data->id < max_employee && loc->data->id > min_employee)
+    if(loc->data->id <= max_employee && loc->data->id >= min_employee)
     {
         (*total_num_of_employees)++;
         if(cond(*(loc->data)))
         {
             (*num_of_matching_employees)++;
         }
+    }
+
+    if(loc->data->id < max_employee)
+    {
+        countInRange(min_employee,max_employee, cond, total_num_of_employees, num_of_matching_employees, loc->right);
     }
 } 

@@ -25,7 +25,7 @@ Node<Company>* Employee::getCompany()
 
 void Employee::promote(int SalaryIncrease, int BumpGrade)
 {
-    if(SalaryIncrease<=0 || BumpGrade<=0)
+    if(SalaryIncrease<=0)
     {
         throw invalid_input();
     }

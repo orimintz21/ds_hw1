@@ -47,7 +47,7 @@ public:
     int m_salary;
     int m_grade;
     EmployeesMatchingInSystemCond(int min_salary, int min_grade) : m_salary(min_salary), m_grade(min_grade){};
-    bool operator()(const Employee a) const
+    bool operator()(const Employee& a) const
     {
         if(a.salary >= m_salary && a.grade >= m_grade)
             return true;
@@ -81,8 +81,11 @@ public:
     void GetHighestEarnerInTheSystem(int* EmployeeID);
     void GetAllEmployeesBySalary(int CompanyID, int **Employees, int*NumOfEmployees);
     int* GetAllEmployeesBySalaryInTheSystem(int* NumOfEmployees);
+    void GetAllEmployeesBySalaryInTheSystemAux(Node<Employee*>* loc, int *employee_arr, int &i);
+
     //returns an array of the ids of the highest earners in relevant compan
-    void GetHighestEarnerInEachCompany(int NumOfCompanies,  int **Employees); 
+    void GetHighestEarnerInEachCompany(int NumOfCompanies,  int **Employees);
+    void GetHighestEarnerInEachCompanyAux(Node<Company*>* loc, int* arr, int& i, int NumOfCompanies);
     void GetNumEmployeesMatching(int CompanyID, int MinEmployeeID, int MaxEmployeeId, int MinSalary, 
                                                     int MinGrade, int *TotalNumOfEmployees, int *NumOfEmployees);
     
