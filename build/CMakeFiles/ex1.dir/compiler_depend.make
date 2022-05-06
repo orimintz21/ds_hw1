@@ -595,7 +595,7 @@ CMakeFiles/ex1.dir/SalaryStat.cpp.o: ../SalaryStat.cpp \
   /usr/include/c++/9/bits/atomic_lockfree_defines.h \
   /usr/include/c++/9/backward/auto_ptr.h \
   ../Node.h \
-  ../AvlTree2.h \
+  ../AvlTree.h \
   ../AvlTreeExceptions.h \
   /usr/include/c++/9/iostream \
   /usr/include/c++/9/ostream \
@@ -1032,8 +1032,6 @@ CMakeFiles/ex1.dir/main1.cpp.o: ../main1.cpp \
 /usr/include/assert.h:
 
 ../library1.h:
-
-../AvlTree2.h:
 
 ../Employee.cpp:
 

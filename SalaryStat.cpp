@@ -141,14 +141,14 @@ void SalaryStat::AcquireCompany(int AcquirerID, int TargetID, double Factor)
     {
         throw failure();
     }
-    acquirerComp->data->mergeWith(*(targetComp->data), Factor);
-
-
 
     if(!targetComp->data->isEmpty())
     {
         n_e_company_tree.remove(targetComp->data);
     }
+
+
+    acquirerComp->data->mergeWith(*(targetComp->data), Factor);
 
     if(!acquirerComp->data->isEmpty())
     {
@@ -254,36 +254,6 @@ void SalaryStat::GetHighestEarnerInEachCompany(int NumOfCompanies, int **Employe
     }
     int i=0;
     GetHighestEarnerInEachCompanyAux(n_e_company_tree.root, company_id_list, i, NumOfCompanies);
-//    Node<Company*>* last = loc;
-//    while(i<NumOfCompanies)
-//    {
-//        company_id_list[i] = (*loc->data)->getHeistEarner()->id;
-//        i++;
-//        if(loc->right != nullptr)
-//        {
-//            last = loc;
-//            loc = loc->right;
-//            while(loc->left != nullptr)
-//            {
-//                last = loc;
-//                loc = loc->left;
-//            }
-//        }else{
-//            if(loc->parent == nullptr)
-//                break;
-//            while(loc->parent != nullptr)
-//            {
-//                last = loc;
-//                loc = loc->parent;
-//                if(loc->left == last)
-//                {
-//                    continue;
-//                }
-//            }
-//        }
-//
-//    }
-
     *Employees = company_id_list;
 }
 
