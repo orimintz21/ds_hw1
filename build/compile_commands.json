@@ -1,27 +1,27 @@
 [
 {
-  "directory": "C:/Users/Aya/Desktop/Technion/semester3/ModelSimTutorial/ex1/build",
-  "command": "C:\\PROGRA~1\\TDM-GC~1\\bin\\X8E3D3~1.EXE   -g -std=gnu++11 -o CMakeFiles\\ex1.dir\\Employee.cpp.obj -c C:\\Users\\Aya\\Desktop\\Technion\\semester3\\ModelSimTutorial\\ex1\\Employee.cpp",
-  "file": "C:/Users/Aya/Desktop/Technion/semester3/ModelSimTutorial/ex1/Employee.cpp"
+  "directory": "/home/orimintz21/ds/DS.ex1/build",
+  "command": "/usr/bin/c++   -g -std=gnu++11 -o CMakeFiles/ex1.dir/Employee.cpp.o -c /home/orimintz21/ds/DS.ex1/Employee.cpp",
+  "file": "/home/orimintz21/ds/DS.ex1/Employee.cpp"
 },
 {
-  "directory": "C:/Users/Aya/Desktop/Technion/semester3/ModelSimTutorial/ex1/build",
-  "command": "C:\\PROGRA~1\\TDM-GC~1\\bin\\X8E3D3~1.EXE   -g -std=gnu++11 -o CMakeFiles\\ex1.dir\\Company.cpp.obj -c C:\\Users\\Aya\\Desktop\\Technion\\semester3\\ModelSimTutorial\\ex1\\Company.cpp",
-  "file": "C:/Users/Aya/Desktop/Technion/semester3/ModelSimTutorial/ex1/Company.cpp"
+  "directory": "/home/orimintz21/ds/DS.ex1/build",
+  "command": "/usr/bin/c++   -g -std=gnu++11 -o CMakeFiles/ex1.dir/Company.cpp.o -c /home/orimintz21/ds/DS.ex1/Company.cpp",
+  "file": "/home/orimintz21/ds/DS.ex1/Company.cpp"
 },
 {
-  "directory": "C:/Users/Aya/Desktop/Technion/semester3/ModelSimTutorial/ex1/build",
-  "command": "C:\\PROGRA~1\\TDM-GC~1\\bin\\X8E3D3~1.EXE   -g -std=gnu++11 -o CMakeFiles\\ex1.dir\\main1.cpp.obj -c C:\\Users\\Aya\\Desktop\\Technion\\semester3\\ModelSimTutorial\\ex1\\main1.cpp",
-  "file": "C:/Users/Aya/Desktop/Technion/semester3/ModelSimTutorial/ex1/main1.cpp"
+  "directory": "/home/orimintz21/ds/DS.ex1/build",
+  "command": "/usr/bin/c++   -g -std=gnu++11 -o CMakeFiles/ex1.dir/main1.cpp.o -c /home/orimintz21/ds/DS.ex1/main1.cpp",
+  "file": "/home/orimintz21/ds/DS.ex1/main1.cpp"
 },
 {
-  "directory": "C:/Users/Aya/Desktop/Technion/semester3/ModelSimTutorial/ex1/build",
-  "command": "C:\\PROGRA~1\\TDM-GC~1\\bin\\X8E3D3~1.EXE   -g -std=gnu++11 -o CMakeFiles\\ex1.dir\\library1.cpp.obj -c C:\\Users\\Aya\\Desktop\\Technion\\semester3\\ModelSimTutorial\\ex1\\library1.cpp",
-  "file": "C:/Users/Aya/Desktop/Technion/semester3/ModelSimTutorial/ex1/library1.cpp"
+  "directory": "/home/orimintz21/ds/DS.ex1/build",
+  "command": "/usr/bin/c++   -g -std=gnu++11 -o CMakeFiles/ex1.dir/library1.cpp.o -c /home/orimintz21/ds/DS.ex1/library1.cpp",
+  "file": "/home/orimintz21/ds/DS.ex1/library1.cpp"
 },
 {
-  "directory": "C:/Users/Aya/Desktop/Technion/semester3/ModelSimTutorial/ex1/build",
-  "command": "C:\\PROGRA~1\\TDM-GC~1\\bin\\X8E3D3~1.EXE   -g -std=gnu++11 -o CMakeFiles\\ex1.dir\\SalaryStat.cpp.obj -c C:\\Users\\Aya\\Desktop\\Technion\\semester3\\ModelSimTutorial\\ex1\\SalaryStat.cpp",
-  "file": "C:/Users/Aya/Desktop/Technion/semester3/ModelSimTutorial/ex1/SalaryStat.cpp"
+  "directory": "/home/orimintz21/ds/DS.ex1/build",
+  "command": "/usr/bin/c++   -g -std=gnu++11 -o CMakeFiles/ex1.dir/SalaryStat.cpp.o -c /home/orimintz21/ds/DS.ex1/SalaryStat.cpp",
+  "file": "/home/orimintz21/ds/DS.ex1/SalaryStat.cpp"
 }
 ]

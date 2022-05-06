@@ -665,11 +665,19 @@ void AvlTree<T,Pred>::merge(AvlTree<T, Pred> &source) {
     Node<T>** merged_arr = new Node<T>*[size + source.size];
     margeNodeArr(arr1, size , arr2, source.size , merged_arr , a_bigger_b);
     fromArrToNodes<T>(root , merged_arr , 0 , size + source.size - 1);
-    if(source.min_n != nullptr)
+    if(min_n == nullptr)
+    {
+        min_n = source.min_n;
+    }
+    else if(source.min_n != nullptr)
     {
         min_n =(a_bigger_b(*(source.min_n->data),*(min_n->data)) ? min_n: source.min_n);
     }
-    if(source.max_n != nullptr)
+    if(max_n == nullptr)
+    {
+        max_n = source.max_n;
+    }
+    else if(source.max_n != nullptr)
     {
         max_n = (a_bigger_b(*(max_n->data),*(source.max_n->data)) ? max_n: source.max_n);
     }

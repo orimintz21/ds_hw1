@@ -1,0 +1,3 @@
+/home/orimintz21/ds/DS.ex1/buildOri/CMakeFiles/ex1.dir
+/home/orimintz21/ds/DS.ex1/buildOri/CMakeFiles/edit_cache.dir
+/home/orimintz21/ds/DS.ex1/buildOri/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/ex1.dir/Employee.cpp.o CMakeFiles/ex1.dir/Company.cpp.o CMakeFiles/ex1.dir/main1.cpp.o CMakeFiles/ex1.dir/library1.cpp.o CMakeFiles/ex1.dir/SalaryStat.cpp.o -o ex1 
