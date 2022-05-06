@@ -137,7 +137,7 @@ CMakeFiles/ex1.dir/Employee.cpp.o: \
  /usr/include/c++/9/bits/atomic_base.h \
  /usr/include/c++/9/bits/atomic_lockfree_defines.h \
  /usr/include/c++/9/backward/auto_ptr.h \
- /home/orimintz21/ds/DS.ex1/AvlTree2.h /home/orimintz21/ds/DS.ex1/Node.h \
+ /home/orimintz21/ds/DS.ex1/AvlTree.h /home/orimintz21/ds/DS.ex1/Node.h \
  /home/orimintz21/ds/DS.ex1/AvlTreeExceptions.h \
  /usr/include/c++/9/iostream /usr/include/c++/9/ostream \
  /usr/include/c++/9/ios /usr/include/c++/9/bits/ios_base.h \

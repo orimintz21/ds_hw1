@@ -2,7 +2,7 @@
 #define WORKPLACE_H_
 
 #include <memory>
-#include "AvlTree2.h"
+#include "AvlTree.h"
 #include "Employee.h"
 
 

@@ -4,7 +4,6 @@
 #include "ex1Exceptions.h"
 
 #include <exception>
-#include <memory>
 
 void *Init()
 {

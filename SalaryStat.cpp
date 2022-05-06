@@ -1,7 +1,7 @@
 #include "Employee.h"
 #include "Company.h"
 #include "SalaryStat.h"
-#include "AvlTree2.h"
+#include "AvlTree.h"
 
 #include <exception>
 #include "ex1Exceptions.h"

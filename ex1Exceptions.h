@@ -1,10 +1,7 @@
-//
-// Created by lenovo on 22/04/2022.
-//
-
 #ifndef EX1_EX1EXCEPTIONS_H
 #define EX1_EX1EXCEPTIONS_H
 #include "exception"
+
 class Ex1Exceptions : std::exception{};
 
 class invalid_input : Ex1Exceptions{};

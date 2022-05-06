@@ -1,295 +1,109 @@
-#ifndef AVL_TREE_H_
-#define AVL_TREE_H_
+//
+// Created by lenovo on 26/04/2022.
+//
 
-#include "TreeNode.h"
-#include "memory"
+#ifndef HW1_AVLTREE2_H
+#define HW1_AVLTREE2_H
+#include "Node.h"
 #include "AvlTreeExceptions.h"
-#include <cmath>
 #include <iostream>
+#include <cmath>
+
 
 using std::cout;
 using std::endl;
-using std::shared_ptr;
-//Pred(A,B) = true -> A>B
+
 template<class T, class Pred>
 class AvlTree
 {
 public:
+    //fields
+
+    //a>b -> a_bigger_b(a,b) = true
+    Pred a_bigger_b;
+    Node<T>* root;
+    Node<T>* max_n;
+    Node<T>* min_n;
     int size;
-    Pred comp;
-    shared_ptr<TreeNode<T>> root;
 
-    AvlTree(Pred comp, T n_root);
-    AvlTree(Pred comp);
-    virtual ~AvlTree() = default;
+    AvlTree() : root(nullptr), max_n(nullptr), min_n(nullptr), size(0) {
+        a_bigger_b = Pred();
+    }
 
-    bool equal(T a, T b) const;
-    int getSize() const;
+    virtual ~AvlTree() {
 
-    const shared_ptr<TreeNode<T>> &getRoot() const;
+        if(root!=nullptr){
+            delete root;
+        }
+    }
+
+    bool equal(const T& a,const T& b) const
+    {
+        return (! a_bigger_b(a,b) && ! a_bigger_b(b,a));
+    }
+
+    //main functions
+    Node<T>* find(const T& element);
+    void insert(const T& element);
+    void remove(const T& element);
+
+
+    //internal functions
 
     //LL rotation
-    void LL(shared_ptr<TreeNode<T>> rotation_root);
+    void LL(Node<T>* rotation_root);
     //LR rotation
-    void LR(shared_ptr<TreeNode<T>> rotation_root);
+    void LR(Node<T>* rotation_root);
     //RL rotation
-    void RL(shared_ptr<TreeNode<T>> rotation_root);
+    void RL(Node<T>* rotation_root);
     //RR rotation
-    void RR(shared_ptr<TreeNode<T>> rotation_root);
-    //find if the element is in the tree, if not throws not_in_tree
-    std::shared_ptr<TreeNode<T>> find(T element);
-    //inserts the element if the elements is not already in the tree, if it is, throws already_in_tree
-    std::shared_ptr<TreeNode<T>> insert(T element);
+    void RR(Node<T>* rotation_root);
+    void fixBalance(Node<T>* from);
 
-    void fixBalace(std::shared_ptr<TreeNode<T>> form);
 
-    void remove(T element);
+    //for tests
+    void printTree(int space) const;
 
-    void removeLeaf(shared_ptr<TreeNode<T>> to_remove, TreeNode<T>* p, bool is_right);
+    void removeLeaf(Node<T>* to_remove, Node<T>* p, bool is_right);
+    void removeOneSonLeft(Node<T>* to_remove, Node<T>* p , bool is_right);
+    void removeOneSonRight(Node<T>* to_remove, Node<T>* p , bool is_right);
+    void removeTwoSons(Node<T>* to_remove, Node<T>* p, bool is_right);
 
-    void removeOneSon(shared_ptr<TreeNode<T>> to_remove, TreeNode<T>* p,  bool is_right);
+    void merge(AvlTree<T,Pred>& source);
+    void setMin()
+    {
+        Node<T>* m = root;
+        while(m->left != nullptr)
+            m = m->left;
+        min_n = m;
+    }
+    void setMax()
+    {
+        Node<T>* m = root;
+        while(m->right != nullptr)
+            m = m->right;
+        max_n = m;
+    }
 
-    void removeTwoSons(shared_ptr<TreeNode<T>> to_remove, TreeNode<T>* p,  bool is_right);
-
-    void printTree(int space);
 };
 
 template<class T>
-void printTreeAux(shared_ptr<TreeNode<T>> a, int space)
-{
-    if (a == nullptr)
-        return;
-
-    space += 5;
-    printTreeAux<T>(a->right, space);
-    cout<<endl;
-    for (int i = 5; i < space; i++)
-        cout<<" ";
-    cout<<a->data<<"\n";
-    printTreeAux<T>(a->left, space);
-
-}
-
-
+void AvlTreeToArr(Node<T>* root, Node<T>* arr[], int* loc);
 
 template<class T, class Pred>
-void AvlTree<T,Pred>::printTree(int space) {
-    printTreeAux<T>(root, space);
-}
-
-
+void margeNodeArr(Node<T>* a_arr[], int a_size, Node<T>* b_arr[], int b_size, 
+                                                Node<T>* ab_arr[], Pred cond);
 
 template<class T>
-shared_ptr<TreeNode<T>> emptyAux(int h);
+Node<T>* fromArrToNodes(Node<T>*& root, Node<T>* ab_arr[], int start, int end);
 
+template<class T, class Pred>
+void margeTrees(AvlTree<T,Pred>& a, AvlTree<T,Pred>& b, AvlTree<T,Pred>& ab);
 
-
-template<class T, class Pred, class RangePred>
-void countInRange(T min_e, T max_e, RangePred rCond, int* all_elements, int* passed_elements, AvlTree<T,Pred> tree)
+template<class T, class Pred>
+Node<T>* AvlTree<T, Pred>::find(const T& element)
 {
-    *all_elements =0;
-    *passed_elements =0;
-    std::shared_ptr<TreeNode<T>> it = tree.root;
-    while(it!= nullptr && tree.comp(min_e,it->data) && !tree.equal(min_e,it->data))
-    {
-        it = it->right;
-    }
-    while (it!= nullptr && tree.comp(it->data,min_e) && !tree.equal(min_e, it->data))
-    {
-        it = it->left;
-    }
-    countInRangeAux(it ,min_e ,max_e, rCond, all_elements, passed_elements,tree);
-
-}
-
-template<class T, class Pred, class RangePred>
-void countInRangeAux(shared_ptr<TreeNode<T>> loc,T min_e,T max_e, RangePred rCond, int* all_elements, int* passed_elements, AvlTree<T,Pred> tree)
-{
-    if(loc == nullptr)
-        return;
-
-    if(tree.comp(loc->data, max_e))
-        return;
-
-    //only happens in the firs iteration
-    if(tree.comp(min_e), loc->data)
-        return;
-    countInRangeAux(loc->left, max_e, rCond, all_elements, passed_elements, tree);
-    (*all_elements)++;
-    if(rCond(loc->data))
-    {
-        (*passed_elements)++;
-    }
-    countInRangeAux(loc->right,max_e,rCond,all_elements,passed_elements,tree);
-}
-
-
-template<class T, class Pred>
-AvlTree<T, Pred>::AvlTree(Pred comp, T n_root):size(1), comp(comp), root(nullptr) {
-    shared_ptr<TreeNode<T>> ptr_n_root =shared_ptr<TreeNode<T>>(new TreeNode<T>(n_root));
-    root = ptr_n_root;
-}
-
-template<class T, class Pred>
-AvlTree<T, Pred>::AvlTree(Pred comp): size(0),comp(comp) ,root(nullptr) {}
-
-template<class T, class Pred>
-int AvlTree<T, Pred>::getSize() const {
-    return size;
-}
-
-template<class T, class Pred>
-const shared_ptr<TreeNode<T>> &AvlTree<T, Pred>::getRoot() const
-{
-    return root;
-}
-
-template<class T, class Pred>
-bool AvlTree<T, Pred>::equal(T a, T b) const
-{
-    if(!comp(a,b) && !comp(b,a))
-        return true;
-    return false;
-}
-
-
-template<class T, class Pred>
-void AvlTree<T,Pred>::LL(shared_ptr<TreeNode<T>> rotation_root)
-{
-    std::shared_ptr<TreeNode<T>> switch_with = rotation_root->left;
-    //set rotation_root parent
-    if(rotation_root->parent != nullptr) {
-        bool left_son = false;
-        if (rotation_root->parent->left == rotation_root) {
-            left_son = true;
-        }
-        if (left_son) {
-            rotation_root->parent->left = switch_with;
-        } else {
-            rotation_root->parent->right = switch_with;
-        }
-    }
-
-
-    if(rotation_root == root)
-    {
-        root = switch_with;
-    }
-    rotation_root->left = switch_with->right;
-    switch_with->right = rotation_root;
-    switch_with->parent = rotation_root->parent;
-    rotation_root->parent = &(*switch_with);
-    rotation_root->calcHeight();
-    switch_with->calcHeight();
-}
-
-template<class T, class Pred>
-void AvlTree<T,Pred>::LR(shared_ptr<TreeNode<T>> rotation_root)
-{
-    std::shared_ptr<TreeNode<T>> first_layer = rotation_root->left;
-    std::shared_ptr<TreeNode<T>> second_layer = first_layer->right;
-    TreeNode<T>* parent = rotation_root->parent;
-    if(parent!= nullptr)
-    {
-        bool left_son = false;
-        if (rotation_root->parent->left == rotation_root) {
-            left_son = true;
-        }
-        if(left_son){
-            parent->left = second_layer;
-        }
-        else{
-            parent->right = second_layer;
-        }
-    }
-    if(rotation_root == root)
-    {
-        root = second_layer;
-    }
-    rotation_root->left = second_layer->right;
-    first_layer->right = second_layer->left;
-    second_layer->left = first_layer;
-    second_layer->right = rotation_root;
-    second_layer->parent = rotation_root->parent;
-    rotation_root->parent = &(*second_layer);
-    first_layer->parent = &(*second_layer);
-    rotation_root->calcHeight();
-    rotation_root->clacBalance();
-    first_layer->clacBalance();
-    second_layer->clacBalance();
-}
-
-template<class T, class Pred>
-void AvlTree<T,Pred>::RL(shared_ptr<TreeNode<T>> rotation_root)
-{
-    std::shared_ptr<TreeNode<T>> first_layer = rotation_root->right;
-    std::shared_ptr<TreeNode<T>> second_layer = first_layer->left;
-    TreeNode<T>* parent = rotation_root->parent;
-    if(parent!= nullptr)
-    {
-        bool left_son = false;
-        if (rotation_root->parent->left == rotation_root) {
-            left_son = true;
-        }
-        if(left_son){
-            parent->left = second_layer;
-        }
-        else{
-            parent->right = second_layer;
-        }
-    }
-    if(rotation_root == root)
-    {
-        root = second_layer;
-    }
-    rotation_root->right = second_layer->left;
-    first_layer->left = second_layer->right;
-    second_layer->right = first_layer;
-    second_layer->left = rotation_root;
-    second_layer->parent = rotation_root->parent;
-    rotation_root->parent = &(*second_layer);
-    first_layer->parent = &(*second_layer);
-    rotation_root->calcHeight();
-    rotation_root->clacBalance();
-    first_layer->clacBalance();
-    second_layer->clacBalance();
-
-}
-
-template<class T, class Pred>
-void AvlTree<T,Pred>::RR(shared_ptr<TreeNode<T>> rotation_root)
-{
-    std::shared_ptr<TreeNode<T>> switch_with = rotation_root->right;
-    //set rotation_root parent
-    if(rotation_root->parent != nullptr) {
-        bool left_son = false;
-        if (rotation_root->parent->left == rotation_root) {
-            left_son = true;
-        }
-        if (left_son) {
-            rotation_root->parent->left = switch_with;
-        } else {
-            rotation_root->parent->right = switch_with;
-        }
-    }
-    if(rotation_root == root)
-    {
-        root = switch_with;
-    }
-    rotation_root->right = switch_with->left;
-    switch_with->left = rotation_root;
-    switch_with->parent = rotation_root->parent;
-    rotation_root->parent = &(*switch_with);
-    rotation_root->calcHeight();
-    switch_with->calcHeight();
-    rotation_root->clacBalance();
-    switch_with->clacBalance();
-}
-
-template<class T, class Pred>
-std::shared_ptr<TreeNode<T>> AvlTree<T,Pred>::find(T element)
-{
-    std::shared_ptr<TreeNode<T>> temp = root;
+    Node<T>* temp = root;
     while(true)
     {
         if(temp == nullptr)
@@ -297,14 +111,14 @@ std::shared_ptr<TreeNode<T>> AvlTree<T,Pred>::find(T element)
             throw not_in_tree();
         }
         //temp>element
-        if(comp(temp->data, element))
-        {
-            temp = temp->right;
-        }
-        //temp<element
-        else if(comp(element, temp->data))
+        if( a_bigger_b(*(temp->data), element))
         {
             temp = temp->left;
+        }
+            //temp<element
+        else if( a_bigger_b(element, *(temp->data)))
+        {
+            temp = temp->right;
         }
         else {
             return temp;
@@ -314,86 +128,69 @@ std::shared_ptr<TreeNode<T>> AvlTree<T,Pred>::find(T element)
 
 
 template<class T, class Pred>
-shared_ptr<TreeNode<T>> AvlTree<T,Pred>::insert(T element) {
-    std::shared_ptr<TreeNode<T>> temp = root;
-    std::shared_ptr<TreeNode<T>> last = root;
-    std::shared_ptr<TreeNode<T>> n_element = std::shared_ptr<TreeNode<T>>(new TreeNode<T>(element));
-
+void AvlTree<T, Pred>::insert(const T& element)
+{
+    Node<T>* temp = root;
+    Node<T>* last = root;
     if(temp == nullptr)
     {
+        Node<T>* n_element = new Node<T>(element);
         root = n_element;
+        min_n = n_element;
+        max_n = n_element;
+        size++;
+        return;
     }
-    else{
-        bool is_right = false;
-        while(temp != nullptr)
-        {
-            //temp>element
-            if(comp((temp->data), n_element->data))
-            {
-                last = temp;
-                is_right = true;
-                temp = temp->right;
-            }
-            //temp<element
-            else if(comp(n_element->data, temp->data))
-            {
-                last = temp;
-                is_right = false;
-                temp = temp->left;
-            }
-            else {
-                throw already_in_tree();
-            }
-        }
-        if(is_right)
-        {
-            last->right = n_element;
-            n_element->parent = &(*last);
-        } else
-        {
-            last->left = n_element;
-            n_element->parent = &(*last);
-        }
-    }
-    size++;
-    fixBalace(n_element);
-    return n_element;
-}
-
-template<class T, class Pred>
-void AvlTree<T,Pred>::fixBalace(std::shared_ptr<TreeNode<T>> form){
-    std::shared_ptr<TreeNode<T>> temp = form;
-    while (temp!= nullptr)
+    bool is_right = false;
+    while(temp != nullptr)
     {
-        temp->calcHeight();
-        if(temp->clacBalance() == 2)
+        //temp>element
+        if( a_bigger_b(*(temp->data), element))
         {
-            if(temp->left->clacBalance() >= 0)
-            {
-                LL(temp);
-            }
-            else{
-                LR(temp);
-            }
-        } else if(temp->clacBalance() == -2)
-        {
-            if(temp->right->clacBalance() >= 0)
-            {
-                RR(temp);
-            } else {
-                RL(temp);
-            }
+            last = temp;
+            is_right = false;
+            temp = temp->left;
         }
-        temp = std::shared_ptr<TreeNode<T>>(temp->parent);
+        else if(a_bigger_b(element,*(temp->data)))
+        {
+            last = temp;
+            is_right = true;
+            temp = temp->right;
+        }
+        else{
+            throw already_in_tree();
+        }
     }
+    Node<T>* n_node = new Node<T>(element);
+    n_node->parent = last;
+
+    if(is_right)
+        last->right = n_node;
+    else
+        last->left = n_node;
+    size++;
+
+    if(max_n == nullptr)
+        max_n = n_node;
+    else if( a_bigger_b(element ,*(max_n->data)))
+        max_n = n_node;
+
+    if(min_n == nullptr)
+        min_n = n_node;
+    else if( a_bigger_b(*(min_n->data), element))
+        min_n = n_node;
+    calcNodeHeight(n_node);
+    fixBalance(n_node);
 }
 
+
+
 template<class T, class Pred>
-void AvlTree<T,Pred>::remove(T element)
+void AvlTree<T,Pred>::remove(const T& element)
 {
-    shared_ptr<TreeNode<T>> to_remove = this->find(element);
-    TreeNode<T>* r_parent = to_remove->parent;
-    
+    Node<T>* to_remove = find(element);
+    Node<T>* r_parent = to_remove->parent;
+
     bool is_right = false;
     if (r_parent != nullptr)
     {
@@ -404,303 +201,439 @@ void AvlTree<T,Pred>::remove(T element)
     }
 
     //to_remove is a leaf
-    if(to_remove->isLeaf())
+    if(to_remove->isALeaf())
     {
         removeLeaf(to_remove, r_parent, is_right);
     }
 
-    //to_remove has one son (which son?)
-    else if(to_remove->left == nullptr || to_remove->right ==nullptr)
+    //to_remove have only the right son
+    else if(to_remove->left == nullptr)
     {
-        removeOneSon(to_remove, r_parent, is_right);
+        removeOneSonRight(to_remove, r_parent, is_right);
     }
 
-    //to_remove has two sons
+    else if(to_remove->right == nullptr)
+    {
+        removeOneSonLeft(to_remove,r_parent,is_right);
+    }
+
+    //to_remove have two sons
     else
     {
         removeTwoSons(to_remove, r_parent, is_right);
         return;
     }
-
 }
 
 template<class T, class Pred>
-void AvlTree<T, Pred>::removeLeaf(shared_ptr<TreeNode<T>> to_remove, TreeNode<T>* p , bool is_right)
-{
-    if(p==nullptr)
+void AvlTree<T,Pred>::removeLeaf(Node<T> *to_remove, Node<T> *p, bool is_right) {
+
+    //the only one node in the tree
+    if(p == nullptr)
     {
         root = nullptr;
+        max_n = nullptr;
+        min_n = nullptr;
     }
     else if(is_right)
     {
         p->right = nullptr;
+        //to_remove > p -> to_remove != min_n
+        if(to_remove == max_n)
+            max_n = p;
+    }
+    //to_remove is the left son of p
+    else{
+        p->left = nullptr;
+        //to_remove < p -> to_remove != max_n
+        if(to_remove == min_n)
+            min_n = p;
+    }
+
+    size--;
+    deleteOnlyThisNodePtr(to_remove);
+    fixBalance(p);
+}
+
+//to_remove->right == nullptr && to_remove->left != nullptr
+template<class T, class Pred>
+void AvlTree<T,Pred>::removeOneSonLeft(Node<T> *to_remove, Node<T> *p, bool is_right) {
+    if(p == nullptr)
+    {
+        root = to_remove->left;
+        if(max_n == to_remove)
+            max_n = to_remove->left;
+        //to_remove > to_remove->left --> min_n != to_remove
+    }
+    else if(is_right)
+    {
+        p->right = to_remove->left;
+        if(max_n == to_remove)
+            max_n = to_remove->left;
+        //to_remove > to_remove->left --> min_n != to_remove
     }
     else
     {
-        p->left = nullptr;
+        p->left = to_remove->left;
+        //p>to_remove>to_remove->left --> min_n!= to_remove != max_n
     }
+    to_remove->left->parent = p;
     size--;
-    fixBalace(std::shared_ptr<TreeNode<T>>(p));
+    deleteOnlyThisNodePtr(to_remove);
+    fixBalance(p);
+}
+
+//to_remove->left == nullptr && to_remove->right != nullptr
+template<class T, class Pred>
+void AvlTree<T,Pred>::removeOneSonRight(Node<T> *to_remove, Node<T> *p, bool is_right) {
+    if(p == nullptr)
+    {
+        root = to_remove->right;
+        if(min_n == to_remove)
+            min_n = to_remove->right;
+        //to_remove < to_remove->right --> max_n != to_remove
+    }
+    else if(is_right)
+    {
+        p->right = to_remove->right;
+        //p<to_remove < to_remove->right --> min_n != to_remove != max_n
+    }
+    else
+    {
+        p->left = to_remove->right;
+        if(min_n == to_remove)
+            min_n = to_remove->right;
+        //to_remove < to_remove->right < p --> min_n!= to_remove != max_n
+    }
+    to_remove->right->parent = p;
+
+    size--;
+    deleteOnlyThisNodePtr(to_remove);
+    fixBalance(p);
 }
 
 template<class T, class Pred>
-void AvlTree<T, Pred>::removeOneSon(shared_ptr<TreeNode<T>> to_remove, TreeNode<T>* p ,bool is_right)
-{
-    if(to_remove->left == nullptr)
-    {
-        if(p==nullptr)
-        {
-            root = to_remove->right;
-        }
-        else if(is_right)
-        {
-            p->right = to_remove->right;
+void AvlTree<T,Pred>::removeTwoSons(Node<T> *to_remove, Node<T> *p, bool is_right) {
+    //to_remove->left < to_remove < to_remove->right --> max_n != to_remove != min_n
 
-        }
-        else
-        {
-            p->left = to_remove->right;
-        }
-        to_remove->right->parent = p;
-
-    }
-
-    if(to_remove->right == nullptr)
-    {
-        if(p == nullptr)
-        {
-            root = to_remove->left;
-        }
-        else if(is_right)
-        {
-            p->right = to_remove->left;
-        }
-        else
-        {
-            p->left = to_remove->left;
-        }
-        to_remove->left->parent = p;
-    }
-    size--;
-    fixBalace(std::shared_ptr<TreeNode<T>>(p));
-    
-}
-
-
-template<class T, class Pred>
-void AvlTree<T, Pred>::removeTwoSons(shared_ptr<TreeNode<T>> to_remove, TreeNode<T>* p, bool is_right)
-{
     bool is_son = true;
-    shared_ptr<TreeNode<T>> to_switch = to_remove->right;
-    while (to_switch->left != nullptr)
-    {   
+    Node<T>* to_switch = to_remove->right;
+    while(to_switch->left != nullptr)
+    {
         is_son = false;
         to_switch = to_switch->left;
     }
 
-    TreeNode<T>* parent_w = to_switch->parent;
-    shared_ptr<TreeNode<T>> son_w =  to_switch->right;
+    Node<T>* to_switch_p = to_switch->parent;
+    Node<T>* to_switch_r = to_switch->right;
+    Node<T>* to_remove_r = to_remove->right;
 
-    if (p == nullptr) {
+    if(p == nullptr)
+    {
         to_switch->parent = nullptr;
         root = to_switch;
-    }
-    else if(is_right)
-    {
-        to_switch->parent = p ;   
-        p->right = to_switch;
+
     }
     else
     {
-        to_switch->parent = p;   
-        p->left = to_switch;
+        to_switch->parent = p;
+        if(is_right)
+            p->right = to_switch;
+        else
+            p->left = to_switch;
     }
 
-    to_switch->left = to_remove->left;
-
-    if (is_son) 
+    if(is_son)
     {
+        to_remove->parent = to_switch;
         to_switch->right = to_remove;
-        parent_w = &(*to_switch);
     }
     else
     {
-        to_switch->right = to_remove->right;
+        to_remove->parent = to_switch_p;
+        to_switch_p->left = to_remove;
+        to_switch->right =to_remove_r;
+        to_remove_r->parent = to_switch;
     }
     to_switch->left = to_remove->left;
-    to_remove->parent = parent_w;
-    to_remove->left->parent = &(*to_switch);
-    to_remove->right->parent = &(*to_switch);
+    to_remove->left->parent =to_switch;
     to_remove->left = nullptr;
-    to_remove->right = son_w;
-    
-    //to_remove is a leaf or an element with one son
-    //it's the left son
-    if(to_remove->isLeaf())
+    to_remove->right = to_switch_r;
+    if(to_switch_r != nullptr)
+        to_switch_r->parent = to_remove;
+
+    //is_son==true -> to_remove is the right son
+    if(to_remove->isALeaf())
+        removeLeaf(to_remove,to_remove->parent,is_son);
+    else
     {
-        removeLeaf(to_remove, to_remove->parent, false);
+        removeOneSonRight(to_remove,to_remove->parent,is_son);
+    }
+}
+
+template<class T, class Pred>
+void AvlTree<T,Pred>::fixBalance(Node<T>* from)
+{
+    Node<T>* temp = from;
+    while (temp!= nullptr)
+    {
+        temp->calcHeight();
+        if(temp->getBalance() > 1)
+        {
+            if(temp->left->getBalance() >= 0)
+            {
+                LL(temp);
+            }
+            else{
+                LR(temp);
+            }
+        } else if(temp->getBalance() < -1)
+        {
+            if(temp->right->getBalance() <= 0)
+            {
+                RR(temp);
+            } else {
+                RL(temp);
+            }
+        }
+        temp = temp->parent;
+    }
+}
+
+template<class T, class Pred>
+void AvlTree<T,Pred>::LL( Node<T>* rotation_root)
+{
+    Node<T>* rotrootParent = rotation_root->parent;
+    Node<T>* switch_with = rotation_root->left;
+    Node<T>* T2 = switch_with->right;
+
+    //make rotroot.left -> switch.right
+    rotation_root->left = T2;
+    if(T2!= nullptr)
+        T2->parent = rotation_root;
+
+    // make switch.right -> rotroot
+    switch_with->right = rotation_root;
+    rotation_root->parent = switch_with;
+
+    switch_with->parent = rotrootParent;
+
+    // fix rotrootParent child
+    if(rotation_root == root)
+    {
+        root = switch_with;
     }
     else
     {
-        removeOneSon(to_remove, to_remove->parent, false);
+        if (rotrootParent->left == rotation_root) {
+            rotrootParent->left = switch_with;
+        }
+        else {
+            rotrootParent->right =  switch_with;
+        }
     }
-}
 
-//to check if problems
-template<class T>
-void TreeNodeToArrInOrder(T* arr, int& ind, shared_ptr<TreeNode<T>> node)
-{
-    if(node == nullptr)
-        return;
-    TreeNodeToArrInOrder(arr, ind, node->left);
-    arr[ind] = node->data;
-    ind++;
-    TreeNodeToArrInOrder(arr,ind,node->right);
-}
-//?
-template<class T, class Pred>
-T* AvlTreeToArrInOrder(AvlTree<T,Pred> tree)
-{  
-    T* arr = new T[tree.size];
-    int i=0;
-    TreeNodeToArrInOrder<T>(arr, i , tree.root);
-    return arr;   
+    rotation_root->calcHeight();
+    switch_with->calcHeight();
 }
 
 template<class T, class Pred>
-T* mergeArray(T arr1[], int size1 ,T arr2[], int size2 ,Pred cond)
+void AvlTree<T,Pred>::RR( Node<T>* rotation_root)
 {
-    int i1 = 0 ;
-    int i2 = 0 ;
-    int n_i = 0;
+    Node<T>* rotrootParent = rotation_root->parent;
+    Node<T>* switch_with = rotation_root->right;
+    Node<T>* T2 = switch_with->left;
 
-    T* n_arr = new T[size1+size2];
-    while(i1<size1 && i2<size2)
+    //make rotroot.right -> switch.left
+    rotation_root->right = T2;
+    if(T2!= nullptr)
+        T2->parent = rotation_root;
+
+    // make switch.left -> rotroot
+    switch_with->left = rotation_root;
+    rotation_root->parent = switch_with;
+
+    switch_with->parent = rotrootParent;
+
+    // fix rotrootParent child
+    if(rotation_root == root)
     {
-        if(cond(arr2[i2],arr1[i1]))
+        root = switch_with;
+    }
+    else
+    {
+        if (rotrootParent->left == rotation_root) {
+            rotrootParent->left = switch_with;
+        }
+        else {
+            rotrootParent->right =  switch_with;
+        }
+    }
+
+    rotation_root->calcHeight();
+    switch_with->calcHeight();
+}
+
+template<class T, class Pred>
+void AvlTree<T,Pred>::LR( Node<T>* rotation_root)
+{
+    RR(rotation_root->left);
+    LL(rotation_root);
+}
+
+template<class T, class Pred>
+void AvlTree<T,Pred>::RL( Node<T>* rotation_root)
+{
+    LL(rotation_root->right);
+    RR(rotation_root);
+}
+
+
+template<class T, class Pred>
+void storeInOrder( Node<T>* root, T arr[], int *ind)
+{
+    if( root == nullptr)
+        return;
+
+    storeInOrder<T,Pred>(root->left, arr, ind);
+
+    arr[*ind] = *(root->data);
+    (*ind)++;
+
+    storeInOrder<T,Pred>(root->right, arr, ind);
+}
+
+template<class T, class Pred>
+Node<T>* sortedArrayToRoot(T arr[], int start , int end)
+{
+    if(start > end)
+        return nullptr;
+    int mid = (int)((start+end)/2);
+    Node<T> *root = newNode(arr[mid]);
+
+    root->left = sortedArrayToRoot<T,Pred>(arr, start, mid-1);
+    root->right = sortedArrayToRoot<T,Pred>(arr, mid+1 , end);
+
+    calcNodeHeight(root);
+
+    return  root;
+}
+
+
+template<class T>
+Node<T>* fromArrToNodes(Node<T>*& root, Node<T>* ab_arr[], int start, int end)
+{
+    if(start > end)
+        return nullptr;
+    int mid = (int)((start + end)/2);
+    root = ab_arr[mid];
+
+    root->right = fromArrToNodes(root->left, ab_arr, mid+1 , end);
+    if(root->right != nullptr)
+        root->right->parent = root;
+    root->left = fromArrToNodes(root->left, ab_arr, start, mid-1);
+    if(root->left != nullptr)
+        root->left->parent = root;
+
+
+    calcNodeHeight(root);
+    return  root;
+}
+
+template<class T , class  Pred>
+void AvlTree<T,Pred>::merge(AvlTree<T, Pred> &source) {
+    Node<T>** arr1 = new Node<T>*[size];
+    Node<T>** arr2 = new Node<T>*[source.size];
+    int i =0 , j=0;
+    AvlTreeToArr<T>(this->root, arr1, &i);
+    AvlTreeToArr<T>(source.root, arr2, &j);
+    Node<T>** merged_arr = new Node<T>*[size + source.size];
+    margeNodeArr(arr1, size , arr2, source.size , merged_arr , a_bigger_b);
+    fromArrToNodes<T>(root , merged_arr , 0 , size + source.size - 1);
+    if(min_n == nullptr)
+    {
+        min_n = source.min_n;
+    }
+    else if(source.min_n != nullptr)
+    {
+        min_n =(a_bigger_b(*(source.min_n->data),*(min_n->data)) ? min_n: source.min_n);
+    }
+    if(max_n == nullptr)
+    {
+        max_n = source.max_n;
+    }
+    else if(source.max_n != nullptr)
+    {
+        max_n = (a_bigger_b(*(max_n->data),*(source.max_n->data)) ? max_n: source.max_n);
+    }
+    size += source.size;
+
+    delete[] arr1;
+    delete[] arr2;
+    delete[] merged_arr;
+
+}
+
+
+
+template<class T, class Pred>
+void margeNodeArr(Node<T>* a_arr[], int a_size, Node<T>* b_arr[], int b_size, Node<T>* ab_arr[], Pred cond)
+{
+    int it_a =0;
+    int it_b =0;
+    int it_ab =0;
+    while(it_a < a_size && it_b < b_size)
+    {
+        if(cond(*(a_arr[it_a]->data), *(b_arr[it_b]->data)))
         {
-            n_arr[n_i] = arr2[i2];
-            n_i++;
-            i2++;
+            ab_arr[it_ab] = b_arr[it_b];
+            it_b++;
+            it_ab++;
         }
         else{
-            n_arr[n_i] = arr1[i1];
-            n_i++;
-            i1++;
+            ab_arr[it_ab] =a_arr[it_a];
+            it_a++;
+            it_ab++;
         }
     }
-    while (i1<size1)
+
+    while (it_a < a_size)
     {
-        n_arr[n_i] = arr1[i1];
-        n_i++;
-        i1++;
-    }
-    while (i2<size2)
-    {
-        n_arr[n_i] = arr2[i2];
-        n_i++;
-        i2++;
+        ab_arr[it_ab] = a_arr[it_a];
+        it_ab++;
+        it_a++;
     }
 
-    return n_arr;
+    while (it_b < b_size)
+    {
+        ab_arr[it_ab] =b_arr[it_b];
+        it_b++;
+        it_ab++;
+    }
 }
-template<class T, class Pred>
-void revInOrderDelete(shared_ptr<TreeNode<T>> p, int* diff);
+
+
 
 template<class T>
-void inorderFill(shared_ptr<TreeNode<T>> p, T* arr, int *ind);
-
-template<class T, class Pred>
-shared_ptr<TreeNode<T>> creatingMergedTree(int size, T* merged_arr)
+void AvlTreeToArr(Node<T>* root, Node<T>* arr[], int* loc)
 {
-    int h = ceil(log2(size)); 
-    int n_size =pow(2,h)-1; 
-    int diff = n_size-size;
-    std::shared_ptr<TreeNode<T>> full_tree = emptyAux<T>(h);
-    int ind = 0;
-    if (diff > 0)
-    {
-        revInOrderDelete<T,Pred>(full_tree, &diff);
-    }
-    inorderFill<T>(full_tree,  merged_arr, &ind);
-    return full_tree;
-
-}
-template<class T, class Pred>
-void revInOrderDelete(shared_ptr<TreeNode<T>> p, int* diff) {
-    if (p == NULL || *diff == 0)
+    if(root == nullptr)
         return;
-    revInOrderDelete<T,Pred>(p->right, diff);
-    bool is_right = false;
 
-    if (p->isLeaf())
-    {
-    if (p->parent->right == p)
-    {
-        is_right = true;
-    }
+    Node<T>* left = root->left;
+    Node<T>* right = root->right;
 
-        if(is_right)
-            p->parent->right = nullptr;
-        else
-            p->parent->left = nullptr;
+    AvlTreeToArr<T>( left, arr, loc);
 
-        (*diff)--;
-    }
-    revInOrderDelete<T,Pred>(p->left, diff);
+    root->right = nullptr;
+    root->left = nullptr;
+    root->parent = nullptr;
+    root->height = 0;
+
+    arr[*loc] = root;
+    (*loc)++;
+    AvlTreeToArr<T>( right ,arr ,loc);
 }
 
 
-template<class T>
-void inorderFill(shared_ptr<TreeNode<T>> p, T* arr, int *ind) {
-    if (p == NULL) return;
-    
-    inorderFill<T>(p->left, arr, ind);
-    p->data = arr[*ind];
-    (*ind)++;
-    inorderFill<T>(p->right, arr, ind);
-}
-
-template<class T>
-shared_ptr<TreeNode<T>> emptyAux(int h){
-    if(h==0){
-        return nullptr;
-    }
-    std::shared_ptr<TreeNode<T>> root(new TreeNode<T>());
-    root->height = h-1;
-    root->left = emptyAux<T>(h-1);
-    root->right = emptyAux<T>(h-1);
-    if(!root->isLeaf())
-    {
-        root->left->parent = &(*root);
-        root->right->parent = &(*root);
-    }
-
-    return root;
-}
-
-template<class T, class Pred>
-shared_ptr<AvlTree<T,Pred>> margeTrees(AvlTree<T,Pred> a , AvlTree<T,Pred> b)
-{   
-
-    T* arr_a =  (AvlTreeToArrInOrder<T,Pred>(a));
-    T* arr_b = nullptr;
-    try{
-        arr_b = AvlTreeToArrInOrder<T,Pred>(b);
-    }
-    catch (std::bad_alloc&) {
-        delete[] arr_a;
-        throw std::bad_alloc();
-    }
-    T* arr_ab = mergeArray<T,Pred>(arr_a, a.size, arr_b ,b.size,a.comp);
-    std::shared_ptr<TreeNode<T>> mergedTreeNodes(creatingMergedTree<T,Pred>(a.size + b.size,arr_ab));
-    std::shared_ptr<AvlTree<T,Pred>> mergedTree(new AvlTree<T,Pred>(Pred()));
-    mergedTree->root = mergedTreeNodes;
-    mergedTree->size = a.size+b.size;
-    delete[] arr_a;
-    delete[] arr_b;
-    delete[] arr_ab;
-    return  mergedTree;
-}
-
-#endif //AVL_TREE_H_
+#endif //HW1_AVLTREE2_H

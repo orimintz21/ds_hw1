@@ -2,7 +2,7 @@
 #define SALARY_STAT_H_
 
 #include <exception>
-#include "AvlTree2.h"
+#include "AvlTree.h"
 #include "library1.h"
 #include "Company.h"
 #include "Employee.h"

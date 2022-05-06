@@ -1,12 +1,5 @@
-//
-// Created by lenovo on 26/04/2022.
-//
-
 #ifndef HW1_NODE_H
 #define HW1_NODE_H
-#include "memory"
-
-using std::shared_ptr;
 
 template<class T>
 class Node {
