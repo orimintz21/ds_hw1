@@ -18,7 +18,7 @@ void SalaryStat::AddCompany(int CompanyID, int Value)
 
 void SalaryStat::AddEmployee(int EmployeeID, int CompanyID, int Salary, int Grade)
 {
-    if(Salary<=0 || CompanyID<=0 || EmployeeID<=0 || Grade<=0)
+    if(Salary<=0 || CompanyID<=0 || EmployeeID<=0 || Grade<0)
         throw invalid_input();
     Employee n_employee(EmployeeID,Salary,Grade, nullptr);
     Node<Company>* company = company_tree.find(CompanyID);
@@ -200,7 +200,6 @@ void SalaryStat::GetAllEmployeesBySalary(int CompanyID, int **Employees, int*Num
     {
         Node<Company>* company = company_tree.find(CompanyID);
         e_list = company->data->getAllEmployeesBySalaryInCompany(NumOfEmployees);
-
     }
 
     else{
@@ -221,13 +220,38 @@ int* SalaryStat::GetAllEmployeesBySalaryInTheSystem(int *NumOfEmployees) {
     {
         throw std::bad_alloc();
     }
-    AvlTree<Employee*, SalaryComp>::iterator it = employee_salary_tree.begin();
-    for(int i =0; it!= employee_salary_tree.end(); ++it)
+    Node<Employee*>* loc = employee_salary_tree.min_n;
+    Node<Employee*>* last = loc;
+    int i=0;
+    while(i<employee_salary_tree.size)
     {
-        //?
-        employee_arr[i] = (*(*it).data)->id;
+        employee_arr[i] = (*loc->data)->id;
         i++;
+        if(loc->right != nullptr)
+        {
+            last = loc;
+            loc = loc->right;
+            while(loc->left != nullptr)
+            {
+                last = loc;
+                loc = loc->left;
+            }
+        }else{
+            if(loc->parent == nullptr)
+                break;
+            while(loc->parent != nullptr)
+            {
+                last = loc;
+                loc = loc->parent;
+                if(loc->left == last)
+                {
+                    continue;
+                }
+            }
+        }
+
     }
+
     return  employee_arr;
 }
 
@@ -249,20 +273,34 @@ void SalaryStat::GetHighestEarnerInEachCompany(int NumOfCompanies, int **Employe
     }
     int i=0;
     Node<Company*>* loc = n_e_company_tree.min_n;
+    Node<Company*>* last = loc;
     while(i<NumOfCompanies)
     {
         company_id_list[i] = (*loc->data)->getHeistEarner()->id;
         i++;
-        if(loc->right!= nullptr)
+        if(loc->right != nullptr)
         {
+            last = loc;
             loc = loc->right;
             while(loc->left != nullptr)
             {
+                last = loc;
                 loc = loc->left;
             }
         }else{
-            loc = loc->parent;
+            if(loc->parent == nullptr)
+                break;
+            while(loc->parent != nullptr)
+            {
+                last = loc;
+                loc = loc->parent;
+                if(loc->left == last)
+                {
+                    continue;
+                }
+            }
         }
+
     }
 
     *Employees = company_id_list;

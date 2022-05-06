@@ -152,19 +152,6 @@ void updateCompany(Node<Employee*>* emp, Node<Company>* comp)
 
 }
 
-void mergeCompanies(Company& acquirerComp, Company& targetComp, Company& mergedComp, double Factor)
-{
-    
-    mergedComp.id = acquirerComp.id;
-    mergedComp.stock_value = (int)((Factor)*(acquirerComp.stock_value + targetComp.stock_value));
-    margeTrees<Employee*,IdComp>(acquirerComp.IdTree, targetComp.IdTree, mergedComp.IdTree);
-
-
-    margeTrees<Employee*, SalaryComp>(acquirerComp.SalaryTree, targetComp.SalaryTree, mergedComp.SalaryTree);
-
-}
-
-
 void Company::mergeWith(Company &target, double  Factor) {
     if(stock_value < 10 * target.stock_value)
         throw failure();

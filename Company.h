@@ -98,6 +98,5 @@ public:
 };
 
 void updateCompany(Node<Employee*>* emp, Node<Company>* comp);
-void mergeCompanies(Company&acquirerComp, Company& targetComp, Company& mergedComp, double Factor);
 
 #endif //WORKPLACE_H_

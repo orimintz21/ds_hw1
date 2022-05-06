@@ -290,6 +290,10 @@ StatusType AcquireCompany(void *DS, int AcquirerID, int TargetID, double Factor)
     {
         return FAILURE;
     }
+    catch ( const failure& e)
+    {
+        return FAILURE;
+    }
     return SUCCESS;
 }
 
